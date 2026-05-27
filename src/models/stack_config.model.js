@@ -27,11 +27,11 @@ StackConfig.init({
     allowNull: false,
     comment: 'Cantidad de piezas a lo alto',
   },
-  separatorCount: {
+  separatorEvery: {
     type: DataTypes.INTEGER,
     allowNull: false,
-    defaultValue: 0,
-    comment: 'Cantidad de separadores entre piezas',
+    defaultValue: 1,
+    comment: 'Cantidad de filas entre cada separador',
   },
 }, {
   sequelize,
