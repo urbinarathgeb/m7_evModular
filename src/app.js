@@ -1,43 +1,56 @@
 import express from 'express';
 import cors from 'cors';
 import env from './config/env.config.js';
-import sequelize, { testConnection } from './config/db.config.js';
+import sequelize, {testConnection} from './config/db.config.js';
+import {errorMiddleware} from './middlewares/error.middleware.js';
+import {NotFoundError} from './utils/errors.js';
 
 const app = express();
 
 app.use(cors({
-  origin: env.NODE_ENV === 'production' ? env.CORS_ORIGIN : '*',
+	origin: env.NODE_ENV === 'production' ? env.CORS_ORIGIN : '*'
 }));
 
 app.use(express.json());
 
 app.get('/', (_req, res) => {
-  res.status(200).json({
-    status: 'success',
-    message: 'CutLog API funcionando',
-  });
+	res.status(200).json({
+		status: 'success',
+		message: 'CutLog API funcionando'
+	});
 });
 
-app.use((_req, res) => {
-  res.status(404).json({
-    status: 'error',
-    message: 'Ruta no encontrada',
-  });
-});
+/** @type {import('express').RequestHandler} */
+const notFoundHandler = (_req, _res, next) => {
+	next(new NotFoundError('Ruta no encontrada'));
+};
+
+app.use(
+	/** @type {import('express').RequestHandler} */
+	notFoundHandler
+);
+
+app.use(
+	/** @type {import('express').ErrorRequestHandler} */
+	errorMiddleware
+);
 
 async function start() {
-  try {
-    await testConnection();
+	try {
+		await testConnection();
 
-    await sequelize.sync({ force: env.NODE_ENV === 'development' });
+		await sequelize.sync({force: env.NODE_ENV === 'development'});
 
-    app.listen(env.PORT, () => {
-      console.log(`✅ Servidor corriendo en el puerto ${env.PORT}`);
-    });
-  } catch (error) {
-    console.error('❌ No se pudo iniciar el servidor:', error.message);
-    process.exit(1);
-  }
+		app.listen(env.PORT, () => {
+			console.log(`✅ Servidor corriendo en el puerto ${env.PORT}`);
+		});
+	} catch (error) {
+		console.error('❌ No se pudo iniciar el servidor:', error.message);
+		process.exit(1);
+	}
 }
 
-start();
+start().catch((error) => {
+	console.error('❌ Error fatal:', error);
+	process.exit(1);
+});
