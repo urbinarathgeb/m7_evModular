@@ -1,7 +1,9 @@
-import { DataTypes } from 'sequelize';
+import { Model, DataTypes } from 'sequelize';
 import sequelize from '../config/db.config.js';
 
-const StackConfig = sequelize.define('StackConfig', {
+class StackConfig extends Model {}
+
+StackConfig.init({
   id: {
     type: DataTypes.INTEGER,
     autoIncrement: true,
@@ -18,12 +20,12 @@ const StackConfig = sequelize.define('StackConfig', {
   widthStack: {
     type: DataTypes.INTEGER,
     allowNull: false,
-    comment: 'Ancho del apilado en milímetros',
+    comment: 'Cantidad de piezas a lo ancho',
   },
   heightStack: {
     type: DataTypes.INTEGER,
     allowNull: false,
-    comment: 'Alto del apilado en milímetros',
+    comment: 'Cantidad de piezas a lo alto',
   },
   separatorCount: {
     type: DataTypes.INTEGER,
@@ -32,6 +34,8 @@ const StackConfig = sequelize.define('StackConfig', {
     comment: 'Cantidad de separadores entre piezas',
   },
 }, {
+  sequelize,
+  modelName: 'StackConfig',
   tableName: 'stack_configs',
   timestamps: true,
   underscored: true,

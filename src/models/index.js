@@ -4,6 +4,10 @@ import Order from './order.model.js';
 import OrderItem from './order_item.model.js';
 import Bundle from './bundle.model.js';
 
+// N:M: Order ↔ Dimension a través de OrderItem
+Order.belongsToMany(Dimension, { through: OrderItem, foreignKey: 'orderId', otherKey: 'dimensionId', as: 'dimensions' });
+Dimension.belongsToMany(Order, { through: OrderItem, foreignKey: 'dimensionId', otherKey: 'orderId', as: 'orders' });
+
 // Dimension ↔ StackConfig (1:N)
 Dimension.hasMany(StackConfig, { foreignKey: 'dimensionId', as: 'stackConfigs' });
 StackConfig.belongsTo(Dimension, { foreignKey: 'dimensionId', as: 'dimension' });

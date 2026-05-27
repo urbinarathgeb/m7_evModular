@@ -1,7 +1,9 @@
-import { DataTypes } from 'sequelize';
+import { Model, DataTypes } from 'sequelize';
 import sequelize from '../config/db.config.js';
 
-const Dimension = sequelize.define('Dimension', {
+class Dimension extends Model {}
+
+Dimension.init({
   id: {
     type: DataTypes.INTEGER,
     autoIncrement: true,
@@ -23,6 +25,8 @@ const Dimension = sequelize.define('Dimension', {
     comment: 'Largo en milímetros',
   },
 }, {
+  sequelize,
+  modelName: 'Dimension',
   tableName: 'dimensions',
   timestamps: true,
   underscored: true,

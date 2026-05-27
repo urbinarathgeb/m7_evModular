@@ -10,7 +10,7 @@ Este proyecto debe ser desarrollado bajo los siguientes estándares estrictos.
     * Convención: Tablas/columnas en **Inglés**, datos en **Español**.
     * Setup: Credenciales vía `process.env` (ver `.env`: `PG_HOST`, `PG_PORT`, `PG_USER`, `PG_PASSWORD`, `PG_DATABASE`). BD: `cutlogDB`.
     * Configuración: `src/config/db.config.js` inicializa la instancia de Sequelize.
-    * Modelos: Definidos en `src/models/*.model.js`.
+    * Modelos: Definidos en `src/models/*.model.js` usando `class extends Model` con `Model.init()`. No usar `sequelize.define()` (API legacy).
     * **Prohibido:** No utilizar queries SQL crudas (`db.query`) a menos que sea estrictamente necesario y previo aviso. Priorizar métodos de Sequelize (`findAll`, `create`, `update`, `findOne`).
     * **Sincronización:** Usar `sequelize.sync({ force: true })` en desarrollo (`NODE_ENV=development`) para recrear tablas desde cero en cada inicio. En producción (`NODE_ENV=production`) usar `sequelize.sync()` sin opciones (solo crea tablas si no existen). **Prohibido usar `alter: true`**. A futuro, migrar a Sequelize CLI migrations para producción.
 * **Gestor:** pnpm.
@@ -43,7 +43,8 @@ Para facilitar las revisiones, todo trabajo debe ser atómico:
 
 ### 2. Normas Generales
 * **Zero-Install Policy:** Prohibido instalar dependencias (`pnpm add`). Si es necesaria, notifícame primero.
-* **Skill Awareness:** Revisa `src/` y este archivo antes de cada cambio.
+* **Skill Awareness:** Revisa `src/`, este archivo y las skills en `.agents/skills/` antes de cada cambio. Las skills contienen patrones y mejores prácticas para las tecnologías usadas (Sequelize, Express, Node.js).
+* **Skill First:** Antes de implementar una feature nueva (modelos, rutas, middlewares, etc.), revisar las skills disponibles en `.agents/skills/` para seguir los patrones recomendados. En caso de conflicto con AGENTS.md, este documento tiene prioridad.
 * **Context Search:** Prioriza la consistencia con archivos existentes.
 * **Database Safety:** Prohibido ejecutar comandos destructivos (`DROP`, `TRUNCATE`, `DELETE` masivos) sin confirmación explícita.
 * **Language Bridge:**
@@ -155,7 +156,7 @@ export const error = (res, { message, status = 500, errors = null }) => { ... };
 
 ## Convenciones de Git
 
-* Los commits **solo se ejecutan cuando el usuario lo solicita explícitamente**.
+* **Commits y push: solo cuando el usuario lo solicite explícitamente.** No hacer commits automáticos después de implementar. Implementar → trackear con `git add` → esperar revisión del usuario → luego ejecutar `/autocommit` cuando el usuario lo pida.
 * Formato: `<tipo>: <descripción en español>`. Tipos: `feat`, `fix`, `chore`, `docs`, `refactor`, `style`.
 * Para reglas detalladas de agrupación y procedimiento, usar el comando `/autocommit`.
 

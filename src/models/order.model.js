@@ -1,7 +1,9 @@
-import { DataTypes } from 'sequelize';
+import { Model, DataTypes } from 'sequelize';
 import sequelize from '../config/db.config.js';
 
-const Order = sequelize.define('Order', {
+class Order extends Model {}
+
+Order.init({
   id: {
     type: DataTypes.INTEGER,
     autoIncrement: true,
@@ -25,6 +27,8 @@ const Order = sequelize.define('Order', {
     comment: 'Estado del pedido',
   },
 }, {
+  sequelize,
+  modelName: 'Order',
   tableName: 'orders',
   timestamps: true,
   underscored: true,

@@ -1,7 +1,9 @@
-import { DataTypes } from 'sequelize';
+import { Model, DataTypes } from 'sequelize';
 import sequelize from '../config/db.config.js';
 
-const Bundle = sequelize.define('Bundle', {
+class Bundle extends Model {}
+
+Bundle.init({
   id: {
     type: DataTypes.INTEGER,
     autoIncrement: true,
@@ -29,7 +31,19 @@ const Bundle = sequelize.define('Bundle', {
     defaultValue: DataTypes.NOW,
     comment: 'Fecha de producción del paquete',
   },
+  totalPieces: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    comment: 'Cantidad total de piezas (ancho * alto)',
+  },
+  cubicMeters: {
+    type: DataTypes.DECIMAL(10, 4),
+    allowNull: false,
+    comment: 'Volumen total en metros cúbicos',
+  },
 }, {
+  sequelize,
+  modelName: 'Bundle',
   tableName: 'bundles',
   timestamps: true,
   underscored: true,
