@@ -4,6 +4,7 @@ import env from './config/env.config.js';
 import sequelize, {testConnection} from './config/db.config.js';
 import {errorMiddleware} from './middlewares/error.middleware.js';
 import {NotFoundError} from './utils/errors.js';
+import './models/index.js';
 
 const app = express();
 
