@@ -117,3 +117,4 @@ Para probar el entorno de producción en local:
 - **Base de Datos:** PostgreSQL
 - **ORM:** Sequelize 6
 - **Gestor de paquetes:** pnpm
+- **Cross-env:** `cross-env` para compatibilidad multiplataforma en scripts
