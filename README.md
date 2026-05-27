@@ -1,33 +1,23 @@
-# Documento Maestro: CutLog API
+# CutLog API
 
-## 1. Visión y Propósito
+## Descripción
 
-**CutLog API** es un asistente de producción _Just-in-Time_ diseñado para aserraderos. Su misión es eliminar la
-carga mental del operario y garantizar la trazabilidad mediante la gestión precisa de pedidos.
+**CutLog API** es un asistente de producción _Just-in-Time_ diseñado para aserraderos. Su misión es eliminar la carga mental del operario y garantizar la trazabilidad mediante la gestión precisa de pedidos.
 
-### Objetivos Clave:
+### Objetivos Clave
 
-- **Eliminar la ambigüedad:** Evitar que el operario olvide las medidas o la configuración de apilado (piezas, filas,
-  separadores).
-
+- **Eliminar la ambigüedad:** Evitar que el operario olvide las medidas o la configuración de apilado (piezas, filas, separadores).
 - **Gestión de Pedidos:** Control total sobre qué falta producir para satisfacer la demanda real del cliente.
-
 - **Trazabilidad Extrema:** Registro histórico inmutable de cómo se configuró cada paquete.
+- **Simplicidad Operativa:** Registro rápido mediante valores sugeridos con libertad total para realizar ajustes manuales ("Override").
 
-- **Simplicidad Operativa:** Registro rápido mediante valores sugeridos con libertad total para realizar ajustes
-  manuales ("Override").
-
-## 2. Filosofía del Sistema
+### Filosofía del Sistema
 
 - **Pedido-Céntrico:** El sistema no busca llenar un inventario infinito; solo existe para cumplir órdenes de venta.
+- **Agnosticismo del Material:** El sistema no depende del tipo de madera. La unidad de trabajo es la **Escuadría (Dimensiones)**.
+- **Flexibilidad (Default vs. Override):** Se estandariza el trabajo para el 90% de los casos, pero se permite la personalización total para el 10% de pedidos especiales.
 
-- **Agnosticismo del Material:** El sistema no depende del tipo de madera. La unidad de trabajo es la **Escuadría (
-  Dimensiones)**.
-
-- **Flexibilidad (Default vs. Override):** Se estandariza el trabajo para el 90% de los casos, pero se permite la
-  personalización total para el 10% de pedidos especiales.
-
-## 3. Arquitectura de Datos (Modelo Relacional)
+## Arquitectura de Datos
 
 Para permitir órdenes mixtas (múltiples medidas en un mismo pedido), la base de datos se organiza así:
 
@@ -39,54 +29,91 @@ Para permitir órdenes mixtas (múltiples medidas en un mismo pedido), la base d
 | **DetalleOrden**  | "Items" de la orden: Define cuánto producir de cada escuadría.       |
 | **Paquete**       | Registro único de producción. "Congela" la configuración real usada. |
 
-## 4. Lógica de Negocio y Reglas de Operación
+## Setup
 
-1. **Jerarquía Independiente:** Las dimensiones (Escuadría) existen separadas de su receta de apilado.
+### Requisitos Previos
 
-2. **Carga Inteligente:** Al crear un `DetalleOrden`, el sistema autocompleta la configuración basándose en el estándar
-   de la `Escuadría`.
+- Node.js >= 18
+- PostgreSQL >= 14
+- pnpm
 
-3. **Inmutabilidad (Regla de Oro):** Una vez que un paquete es producido, su configuración queda registrada
-   permanentemente. Cambios futuros en el "estándar" no alteran el histórico.
+### Instalación
 
-4. **Flujo del Pedido:**
+1. Clonar el repositorio:
+   ```bash
+   git clone <repo-url>
+   cd m7_evModular
+   ```
 
-    - **Pendiente:** Orden ingresada, sin avance.
+2. Instalar dependencias:
+   ```bash
+   pnpm install
+   ```
 
-    - **En Producción:** Se están registrando los paquetes uno a uno.
+3. Crear la base de datos en PostgreSQL:
+   ```sql
+   CREATE DATABASE "cutlogDB";
+   ```
 
-    - **Finalizado:** La cantidad producida iguala la solicitada.
+4. Configurar el archivo `.env` (copiar `.env.example` si existe):
+   ```bash
+   cp .env.example .env
+   ```
 
-    - **Entregado:** El paquete sale del aserradero (cierre de ciclo).
+5. Ajustar las variables de entorno según tu configuración local.
 
-5. **Resiliencia:** Capacidad de "Anular Producción" para corregir errores antes del despacho.
+### Ejecución
 
-## 5. El Flujo Operativo (La "Receta" en Acción)
+```bash
+# Desarrollo (con hot-reload)
+pnpm dev
 
-1. **Ingreso:** El sistema permite cargar una `Orden` con múltiples líneas (`DetalleOrden`), ejemplo: _5 paquetes de
-   18x90x3600_ + _10 paquetes de 10x10x1800_.
+# Producción
+pnpm start
+```
 
-2. **Decisión de Campo:**
+> En modo desarrollo, las tablas se recrean desde cero en cada arranque (`sequelize.sync({ force: true })`).
 
-    - Si es **estándar**, el operario confirma la configuración propuesta.
+### Entornos
 
-    - Si es **especial**, el operario modifica los campos (ej: de 2 a 3 separadores) en el momento.
+El proyecto distingue entre desarrollo y producción usando archivos `.env` separados:
 
-3. **Registro:** Al presionar "Registrar Paquete", se genera un ID único, se vincula a la `Orden` y se guarda la "foto"
-   de la configuración aplicada.
+| Entorno         | Archivo                              | Comando      | Puerto | CORS                      |
+|-----------------|--------------------------------------|--------------|--------|---------------------------|
+| Desarrollo      | `.env` + `.env.development`          | `pnpm dev`   | 3001   | `*`                       |
+| Producción (sim)| `.env` + `.env.production`           | `pnpm start` | 3002   | `http://localhost:5173`   |
 
-4. **Feedback Visual:** El tablero muestra el progreso real: `Producido 2/5` para la primera medida y `0/10` para la
-   segunda.
+#### Simulación local
 
-## 6. Tablero del Operario (Visualización)
+Para probar el entorno de producción en local:
 
-| **Orden** | **Producto (Medida)** | **Objetivo** | **Producido** | **Estado**    |
-|-----------|-----------------------|--------------|---------------|---------------|
-| **#101**  | 18x90x3600            | 5 Pqts       | 2             | 🟡 En proceso |
-| **#101**  | 10x10x1800            | 10 Pqts      | 0             | 🔴 Pendiente  |
+1. Ejecuta `pnpm start`
+2. La API correrá en el puerto **3002** con CORS restringido a `http://localhost:5173` (puerto por defecto de Vite)
 
-- **Ayuda Visual:** Al tocar cualquier ítem, la pantalla muestra la receta técnica (esquema de apilado) para asegurar
-  que el armado sea correcto.
+> En un despliegue real de producción, se debe ajustar `PORT` y `CORS_ORIGIN` en `.env.production` con los valores correspondientes al servidor.
 
-Este diseño consolida la agilidad técnica de una API moderna con la realidad práctica de un aserradero. **¿Consideras
-que este documento ya abarca todo lo necesario para comenzar a definir los endpoints y la estructura del código?**
+## Variables de Entorno
+
+| Variable            | Descripción                        | Default       |
+|---------------------|------------------------------------|---------------|
+| `PG_HOST`           | Host de PostgreSQL                 | `localhost`   |
+| `PG_PORT`           | Puerto de PostgreSQL               | `5432`        |
+| `PG_USER`           | Usuario de PostgreSQL              | `postgres`    |
+| `PG_PASSWORD`       | Contraseña de PostgreSQL           | _(vacío)_     |
+| `PG_DATABASE`       | Nombre de la base de datos         | `cutlogDB`    |
+| `PORT`              | Puerto del servidor                | `3001`        |
+| `NODE_ENV`          | Entorno (`development`/`production`) | `development` |
+| `CORS_ORIGIN`       | Origen permitido para CORS         | `*`           |
+| `ALLOW_EXIT_ON_IDLE`| Cerrar pool al salir               | `true`        |
+
+## Endpoints
+
+> En desarrollo. Se documentarán conforme se implementen.
+
+## Stack
+
+- **Runtime:** Node.js (ES Modules)
+- **Framework:** Express 5
+- **Base de Datos:** PostgreSQL
+- **ORM:** Sequelize 6
+- **Gestor de paquetes:** pnpm
