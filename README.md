@@ -180,7 +180,23 @@ Para probar el entorno de producción en local:
 
 ## Endpoints
 
-> En desarrollo. Se documentarán conforme se implementen.
+### Dimensions
+
+| Método | Ruta | Descripción | Validación |
+|---|---|---|---|
+| `GET` | `/api/dimensions` | Listar todas las dimensiones | — |
+| `GET` | `/api/dimensions/:id` | Obtener dimensión por ID | ID entero positivo |
+| `POST` | `/api/dimensions` | Crear nueva dimensión | `thickness`, `width`, `length` obligatorios (enteros > 0) |
+| `PUT` | `/api/dimensions/:id` | Actualizar dimensión | Al menos un campo, enteros > 0 |
+| `DELETE` | `/api/dimensions/:id` | Eliminar dimensión (soft delete) | ID entero positivo |
+
+> Para pruebas completas, ver `src/request/dimensions.http` (22 casos de prueba).
+
+#### Comportamiento especial
+
+- **Soft delete:** `DELETE` no elimina físicamente, solo marca `deleted_at`. La dimensión desaparece de las consultas pero se puede restaurar.
+- **Restore al crear duplicada:** Si se intenta crear una dimensión con las mismas medidas que una soft-deleted, el sistema la restaura automáticamente en vez de crear un nuevo registro.
+- **Índice único:** No permite crear dos dimensiones activas con las mismas medidas (`thickness`, `width`, `length`).
 
 ## Stack
 

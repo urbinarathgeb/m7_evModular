@@ -6,6 +6,7 @@ import {errorMiddleware} from './middlewares/error.middleware.js';
 import {NotFoundError} from './utils/errors.js';
 import './models/index.js';
 import {seed} from './seeders/initial.seed.js';
+import dimensionRoutes from './routes/dimension.routes.js';
 
 const app = express();
 
@@ -21,6 +22,8 @@ app.get('/', (_req, res) => {
 		message: 'CutLog API funcionando'
 	});
 });
+
+app.use('/api/dimensions', dimensionRoutes);
 
 /** @type {import('express').RequestHandler} */
 const notFoundHandler = (_req, _res, next) => {

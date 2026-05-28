@@ -1,0 +1,174 @@
+### Variables
+@base_url = http://localhost:3001/api
+
+### ============================================
+### GET - Listar todas las dimensiones
+### ============================================
+GET {{base_url}}/dimensions
+
+### ============================================
+### GET - Obtener dimensión por ID (existente)
+### ============================================
+GET {{base_url}}/dimensions/1
+
+### ============================================
+### GET - Obtener dimensión por ID (no existe)
+### ============================================
+GET {{base_url}}/dimensions/999
+
+### ============================================
+### GET - Obtener dimensión por ID (ID inválido)
+### ============================================
+GET {{base_url}}/dimensions/abc
+
+### ============================================
+### GET - Obtener dimensión por ID (ID negativo)
+### ============================================
+GET {{base_url}}/dimensions/-1
+
+### ============================================
+### POST - Crear dimensión válida
+### ============================================
+POST {{base_url}}/dimensions
+Content-Type: application/json
+
+{
+  "thickness": 25,
+  "width": 80,
+  "length": 3200
+}
+
+### ============================================
+### POST - Crear dimensión (falta thickness)
+### ============================================
+POST {{base_url}}/dimensions
+Content-Type: application/json
+
+{
+  "width": 80,
+  "length": 3200
+}
+
+### ============================================
+### POST - Crear dimensión (falta width y length)
+### ============================================
+POST {{base_url}}/dimensions
+Content-Type: application/json
+
+{
+  "thickness": 25
+}
+
+### ============================================
+### POST - Crear dimensión (body vacío)
+### ============================================
+POST {{base_url}}/dimensions
+Content-Type: application/json
+
+{}
+
+### ============================================
+### POST - Crear dimensión (valores negativos)
+### ============================================
+POST {{base_url}}/dimensions
+Content-Type: application/json
+
+{
+  "thickness": -10,
+  "width": 80,
+  "length": 3200
+}
+
+### ============================================
+### POST - Crear dimensión (valores decimales)
+### ============================================
+POST {{base_url}}/dimensions
+Content-Type: application/json
+
+{
+  "thickness": 25.5,
+  "width": 80,
+  "length": 3200
+}
+
+### ============================================
+### POST - Crear dimensión (duplicada activa)
+### ============================================
+POST {{base_url}}/dimensions
+Content-Type: application/json
+
+{
+  "thickness": 45,
+  "width": 70,
+  "length": 3200
+}
+
+### ============================================
+### PUT - Actualizar dimensión (un campo)
+### ============================================
+PUT {{base_url}}/dimensions/1
+Content-Type: application/json
+
+{
+  "thickness": 30
+}
+
+### ============================================
+### PUT - Actualizar dimensión (todos los campos)
+### ============================================
+PUT {{base_url}}/dimensions/1
+Content-Type: application/json
+
+{
+  "thickness": 30,
+  "width": 90,
+  "length": 3500
+}
+
+### ============================================
+### PUT - Actualizar dimensión (body vacío)
+### ============================================
+PUT {{base_url}}/dimensions/1
+Content-Type: application/json
+
+{}
+
+### ============================================
+### PUT - Actualizar dimensión (ID no existe)
+### ============================================
+PUT {{base_url}}/dimensions/999
+Content-Type: application/json
+
+{
+  "thickness": 30
+}
+
+### ============================================
+### PUT - Actualizar dimensión (valor inválido)
+### ============================================
+PUT {{base_url}}/dimensions/1
+Content-Type: application/json
+
+{
+  "thickness": -5
+}
+
+### ============================================
+### DELETE - Eliminar dimensión (soft delete)
+### ============================================
+DELETE {{base_url}}/dimensions/1
+
+### ============================================
+### DELETE - Eliminar dimensión ya borrada
+### ============================================
+DELETE {{base_url}}/dimensions/1
+
+### ============================================
+### DELETE - Eliminar dimensión (ID no existe)
+### ============================================
+DELETE {{base_url}}/dimensions/999
+
+### ============================================
+### DELETE - Eliminar dimensión (ID inválido)
+### ============================================
+DELETE {{base_url}}/dimensions/abc
