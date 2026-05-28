@@ -56,3 +56,15 @@ export const remove = async (id) => {
   await dimension.destroy();
   return dimension;
 };
+
+export const restore = async (id) => {
+  const dimension = await Dimension.findByPk(id, { paranoid: false });
+  if (!dimension) {
+    throw new NotFoundError('Dimensión no encontrada');
+  }
+  if (!dimension.deletedAt) {
+    throw new ConflictError('La dimensión no está eliminada');
+  }
+  await dimension.restore();
+  return dimension;
+};

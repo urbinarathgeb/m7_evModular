@@ -104,16 +104,6 @@ Content-Type: application/json
 }
 
 ### ============================================
-### PUT - Actualizar dimensión (un campo)
-### ============================================
-PUT {{base_url}}/dimensions/1
-Content-Type: application/json
-
-{
-  "thickness": 30
-}
-
-### ============================================
 ### PUT - Actualizar dimensión (todos los campos)
 ### ============================================
 PUT {{base_url}}/dimensions/1
@@ -123,6 +113,17 @@ Content-Type: application/json
   "thickness": 30,
   "width": 90,
   "length": 3500
+}
+
+### ============================================
+### PUT - Actualizar dimensión (falta un campo)
+### ============================================
+PUT {{base_url}}/dimensions/1
+Content-Type: application/json
+
+{
+  "thickness": 30,
+  "width": 90
 }
 
 ### ============================================
@@ -140,13 +141,66 @@ PUT {{base_url}}/dimensions/999
 Content-Type: application/json
 
 {
-  "thickness": 30
+  "thickness": 30,
+  "width": 90,
+  "length": 3500
 }
 
 ### ============================================
 ### PUT - Actualizar dimensión (valor inválido)
 ### ============================================
 PUT {{base_url}}/dimensions/1
+Content-Type: application/json
+
+{
+  "thickness": -5,
+  "width": 90,
+  "length": 3500
+}
+
+### ============================================
+### PATCH - Actualizar dimensión (un campo)
+### ============================================
+PATCH {{base_url}}/dimensions/1
+Content-Type: application/json
+
+{
+  "thickness": 35
+}
+
+### ============================================
+### PATCH - Actualizar dimensión (dos campos)
+### ============================================
+PATCH {{base_url}}/dimensions/1
+Content-Type: application/json
+
+{
+  "thickness": 35,
+  "width": 95
+}
+
+### ============================================
+### PATCH - Actualizar dimensión (body vacío)
+### ============================================
+PATCH {{base_url}}/dimensions/1
+Content-Type: application/json
+
+{}
+
+### ============================================
+### PATCH - Actualizar dimensión (ID no existe)
+### ============================================
+PATCH {{base_url}}/dimensions/999
+Content-Type: application/json
+
+{
+  "thickness": 35
+}
+
+### ============================================
+### PATCH - Actualizar dimensión (valor inválido)
+### ============================================
+PATCH {{base_url}}/dimensions/1
 Content-Type: application/json
 
 {
@@ -172,3 +226,44 @@ DELETE {{base_url}}/dimensions/999
 ### DELETE - Eliminar dimensión (ID inválido)
 ### ============================================
 DELETE {{base_url}}/dimensions/abc
+
+### ============================================
+### POST - Restaurar dimensión eliminada (explícito)
+### ============================================
+POST {{base_url}}/dimensions/1/restore
+
+### ============================================
+### POST - Restaurar dimensión no eliminada (error)
+### ============================================
+POST {{base_url}}/dimensions/2/restore
+
+### ============================================
+### POST - Restaurar dimensión que no existe
+### ============================================
+POST {{base_url}}/dimensions/999/restore
+
+### ============================================
+### POST - Restore implícito (crear → borrar → crear misma)
+### ============================================
+### Paso 1: Crear dimensión
+POST {{base_url}}/dimensions
+Content-Type: application/json
+
+{
+  "thickness": 99,
+  "width": 99,
+  "length": 9999
+}
+
+### Paso 2: Eliminarla (anotar el ID de la respuesta anterior y reemplazar)
+DELETE {{base_url}}/dimensions/18
+
+### Paso 3: Intentar crear la misma dimensión (debería restaurar la eliminada)
+POST {{base_url}}/dimensions
+Content-Type: application/json
+
+{
+  "thickness": 99,
+  "width": 99,
+  "length": 9999
+}

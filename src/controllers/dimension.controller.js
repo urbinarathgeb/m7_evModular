@@ -45,3 +45,12 @@ export const destroy = asyncHandler(async (req, res) => {
     message: 'Dimensión eliminada correctamente',
   });
 });
+
+export const restore = asyncHandler(async (req, res) => {
+  const id = parseInt(req.params.id, 10);
+  const dimension = await dimensionService.restore(id);
+  return success(res, {
+    message: 'Dimensión restaurada correctamente',
+    data: dimension,
+  });
+});

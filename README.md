@@ -187,10 +187,12 @@ Para probar el entorno de producción en local:
 | `GET` | `/api/dimensions` | Listar todas las dimensiones | — |
 | `GET` | `/api/dimensions/:id` | Obtener dimensión por ID | ID entero positivo |
 | `POST` | `/api/dimensions` | Crear nueva dimensión | `thickness`, `width`, `length` obligatorios (enteros > 0) |
-| `PUT` | `/api/dimensions/:id` | Actualizar dimensión | Al menos un campo, enteros > 0 |
+| `PUT` | `/api/dimensions/:id` | Actualizar dimensión (completa) | Los 3 campos obligatorios, enteros > 0 |
+| `PATCH` | `/api/dimensions/:id` | Actualizar dimensión (parcial) | Al menos un campo, enteros > 0 |
+| `POST` | `/api/dimensions/:id/restore` | Restaurar dimensión eliminada | ID entero positivo |
 | `DELETE` | `/api/dimensions/:id` | Eliminar dimensión (soft delete) | ID entero positivo |
 
-> Para pruebas completas, ver `src/request/dimensions.http` (22 casos de prueba).
+> Para pruebas completas, ver `src/request/dimensions.http` (28 casos de prueba).
 
 #### Comportamiento especial
 
