@@ -36,6 +36,7 @@ OrderItem.init({
   tableName: 'order_items',
   timestamps: true,
   underscored: true,
+  paranoid: true,
 });
 
 export default OrderItem;

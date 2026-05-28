@@ -30,6 +30,7 @@ Dimension.init({
   tableName: 'dimensions',
   timestamps: true,
   underscored: true,
+  paranoid: true,
   indexes: [
     {
       unique: true,

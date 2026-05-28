@@ -39,6 +39,7 @@ StackConfig.init({
   tableName: 'stack_configs',
   timestamps: true,
   underscored: true,
+  paranoid: true,
 });
 
 export default StackConfig;

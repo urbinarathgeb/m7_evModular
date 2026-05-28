@@ -47,6 +47,7 @@ Bundle.init({
   tableName: 'bundles',
   timestamps: true,
   underscored: true,
+  paranoid: true,
 });
 
 export default Bundle;
