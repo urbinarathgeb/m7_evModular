@@ -9,15 +9,15 @@ Dimension.init({
     autoIncrement: true,
     primaryKey: true,
   },
+  thickness: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    comment: 'Espesor en milímetros',
+  },
   width: {
     type: DataTypes.INTEGER,
     allowNull: false,
     comment: 'Ancho en milímetros',
-  },
-  height: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
-    comment: 'Alto en milímetros',
   },
   length: {
     type: DataTypes.INTEGER,
@@ -30,6 +30,12 @@ Dimension.init({
   tableName: 'dimensions',
   timestamps: true,
   underscored: true,
+  indexes: [
+    {
+      unique: true,
+      fields: ['thickness', 'width', 'length'],
+    },
+  ],
 });
 
 export default Dimension;
