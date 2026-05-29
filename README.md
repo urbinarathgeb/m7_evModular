@@ -200,6 +200,31 @@ Para probar el entorno de producción en local:
 - **Restore al crear duplicada:** Si se intenta crear una dimensión con las mismas medidas que una soft-deleted, el sistema la restaura automáticamente en vez de crear un nuevo registro.
 - **Índice único:** No permite crear dos dimensiones activas con las mismas medidas (`thickness`, `width`, `length`).
 
+### Orders
+
+| Método | Ruta | Descripción | Validación |
+|---|---|---|---|
+| `GET` | `/api/orders` | Listar todas las órdenes (con dimensiones incluidas) | — |
+| `GET` | `/api/orders/:id` | Obtener orden por ID (con dimensiones) | ID entero positivo |
+| `POST` | `/api/orders` | Crear nueva orden con dimensiones | `client` obligatorio, `dimensions` array con al menos 1 item |
+| `PUT` | `/api/orders/:id` | Actualizar orden (completa) | `client` y `orderDate` obligatorios, `status` opcional |
+| `PATCH` | `/api/orders/:id` | Actualizar orden (parcial) | Al menos un campo válido |
+| `POST` | `/api/orders/:id/restore` | Restaurar orden eliminada | ID entero positivo |
+| `DELETE` | `/api/orders/:id` | Eliminar orden (soft delete) | ID entero positivo |
+
+> Para pruebas completas, ver `src/request/orders.http` (26 casos de prueba).
+
+#### Formato de fecha
+
+- **Input:** `DD-MM-YYYY` (ej: `28-05-2026`)
+- **Output:** `orderDate` en formato `DD-MM-YYYY`, `createdAt`/`updatedAt` en ISO
+
+#### Comportamiento especial
+
+- **Status automático:** Toda orden se crea con `status: "pending"`. No se puede enviar `status` al crear.
+- **Respuesta aplanada:** Las dimensiones se devuelven como `{ "dimension": "45x70x3200", "quantity": 5 }` en vez del objeto completo.
+- **Rollback en error:** Si una dimensión del array no existe, se elimina la orden creada para evitar órdenes huérfanas.
+
 ## Stack
 
 - **Runtime:** Node.js (ES Modules)

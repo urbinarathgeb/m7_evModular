@@ -1,0 +1,261 @@
+### Variables
+@base_url = http://localhost:3001/api
+
+### ============================================
+### GET - Listar todas las órdenes
+### ============================================
+GET {{base_url}}/orders
+
+### ============================================
+### GET - Obtener orden por ID (existente)
+### ============================================
+GET {{base_url}}/orders/1
+
+### ============================================
+### GET - Obtener orden por ID (no existe)
+### ============================================
+GET {{base_url}}/orders/999
+
+### ============================================
+### GET - Obtener orden por ID (ID inválido)
+### ============================================
+GET {{base_url}}/orders/abc
+
+### ============================================
+### POST - Crear orden válida (sin fecha, status default pending)
+### ============================================
+POST {{base_url}}/orders
+Content-Type: application/json
+
+{
+  "client": "Juan Pérez",
+  "dimensions": [
+    { "dimensionId": 1, "quantity": 5 },
+    { "dimensionId": 3, "quantity": 10 }
+  ]
+}
+
+### ============================================
+### POST - Crear orden con fecha DD-MM-YYYY
+### ============================================
+POST {{base_url}}/orders
+Content-Type: application/json
+
+{
+  "client": "María González",
+  "orderDate": "28-05-2026",
+  "dimensions": [
+    { "dimensionId": 2, "quantity": 3 }
+  ]
+}
+
+### ============================================
+### POST - Crear orden (falta client)
+### ============================================
+POST {{base_url}}/orders
+Content-Type: application/json
+
+{
+  "dimensions": [
+    { "dimensionId": 1, "quantity": 5 }
+  ]
+}
+
+### ============================================
+### POST - Crear orden (falta dimensions)
+### ============================================
+POST {{base_url}}/orders
+Content-Type: application/json
+
+{
+  "client": "Juan Pérez"
+}
+
+### ============================================
+### POST - Crear orden (dimensions vacío)
+### ============================================
+POST {{base_url}}/orders
+Content-Type: application/json
+
+{
+  "client": "Juan Pérez",
+  "dimensions": []
+}
+
+### ============================================
+### POST - Crear orden (dimensionId inválido)
+### ============================================
+POST {{base_url}}/orders
+Content-Type: application/json
+
+{
+  "client": "Juan Pérez",
+  "dimensions": [
+    { "dimensionId": -1, "quantity": 5 }
+  ]
+}
+
+### ============================================
+### POST - Crear orden (quantity inválida)
+### ============================================
+POST {{base_url}}/orders
+Content-Type: application/json
+
+{
+  "client": "Juan Pérez",
+  "dimensions": [
+    { "dimensionId": 1, "quantity": 0 }
+  ]
+}
+
+### ============================================
+### POST - Crear orden (fecha formato incorrecto)
+### ============================================
+POST {{base_url}}/orders
+Content-Type: application/json
+
+{
+  "client": "Juan Pérez",
+  "orderDate": "2026-05-28",
+  "dimensions": [
+    { "dimensionId": 1, "quantity": 5 }
+  ]
+}
+
+### ============================================
+### POST - Crear orden (dimensionId no existe)
+### ============================================
+POST {{base_url}}/orders
+Content-Type: application/json
+
+{
+  "client": "Juan Pérez",
+  "dimensions": [
+    { "dimensionId": 999, "quantity": 5 }
+  ]
+}
+
+### ============================================
+### PUT - Actualizar orden (todos los campos)
+### ============================================
+PUT {{base_url}}/orders/1
+Content-Type: application/json
+
+{
+  "client": "Carlos López",
+  "orderDate": "30-05-2026",
+  "status": "in_production"
+}
+
+### ============================================
+### PUT - Actualizar orden (falta status)
+### ============================================
+PUT {{base_url}}/orders/1
+Content-Type: application/json
+
+{
+  "client": "Carlos López",
+  "orderDate": "30-05-2026"
+}
+
+### ============================================
+### PUT - Actualizar orden (status inválido)
+### ============================================
+PUT {{base_url}}/orders/1
+Content-Type: application/json
+
+{
+  "client": "Carlos López",
+  "orderDate": "30-05-2026",
+  "status": "invalid_status"
+}
+
+### ============================================
+### PUT - Actualizar orden (fecha formato incorrecto)
+### ============================================
+PUT {{base_url}}/orders/1
+Content-Type: application/json
+
+{
+  "client": "Carlos López",
+  "orderDate": "2026-05-30",
+  "status": "pending"
+}
+
+### ============================================
+### PATCH - Actualizar orden (solo client)
+### ============================================
+PATCH {{base_url}}/orders/1
+Content-Type: application/json
+
+{
+  "client": "Pedro Martínez"
+}
+
+### ============================================
+### PATCH - Actualizar orden (solo status)
+### ============================================
+PATCH {{base_url}}/orders/1
+Content-Type: application/json
+
+{
+  "status": "completed"
+}
+
+### ============================================
+### PATCH - Actualizar orden (solo orderDate)
+### ============================================
+PATCH {{base_url}}/orders/1
+Content-Type: application/json
+
+{
+  "orderDate": "01-06-2026"
+}
+
+### ============================================
+### PATCH - Actualizar orden (body vacío)
+### ============================================
+PATCH {{base_url}}/orders/1
+Content-Type: application/json
+
+{}
+
+### ============================================
+### PATCH - Actualizar orden (ID no existe)
+### ============================================
+PATCH {{base_url}}/orders/999
+Content-Type: application/json
+
+{
+  "client": "Nuevo Cliente"
+}
+
+### ============================================
+### DELETE - Eliminar orden (soft delete)
+### ============================================
+DELETE {{base_url}}/orders/1
+
+### ============================================
+### DELETE - Eliminar orden ya borrada
+### ============================================
+DELETE {{base_url}}/orders/1
+
+### ============================================
+### DELETE - Eliminar orden (ID no existe)
+### ============================================
+DELETE {{base_url}}/orders/999
+
+### ============================================
+### POST - Restaurar orden eliminada (explícito)
+### ============================================
+POST {{base_url}}/orders/1/restore
+
+### ============================================
+### POST - Restaurar orden no eliminada (error)
+### ============================================
+POST {{base_url}}/orders/2/restore
+
+### ============================================
+### POST - Restaurar orden que no existe
+### ============================================
+POST {{base_url}}/orders/999/restore
