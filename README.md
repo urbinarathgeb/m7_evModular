@@ -150,6 +150,21 @@ pnpm start
 
 > En modo desarrollo, las tablas se recrean desde cero en cada arranque (`sequelize.sync({ force: true })`). El seed inicial se ejecuta automáticamente.
 
+### Seed Inicial
+
+Al arrancar el servidor en desarrollo, el seed automático crea:
+
+- **14 dimensiones** únicas con sus configuraciones de apilado default
+- **3 órdenes** con diferentes estados para demostración:
+
+| ID  | Cliente                 | Status            | Items                                                                                |
+|-----|-------------------------|-------------------|--------------------------------------------------------------------------------------|
+| 1   | Juan Pérez              | `pending`         | 45x70x3200 x10, 18x100x3200 x5                                                      |
+| 2   | Maderas del Sur         | `in_production`   | 90x100x3200 x6 (2 bundles), 18x90x3200 x8 (1 bundle), 45x70x3200 x3                  |
+| 3   | Constructora del Norte  | `completed`       | 70x90x3200 x4 (4 bundles, producción completa)                                       |
+
+Esto permite probar la API inmediatamente con datos realistas: ver producción parcial en Order 2, producción completa en Order 3, y una orden pendiente sin bundles (Order 1) lista para tests de creación.
+
 ### Entornos
 
 El proyecto distingue entre desarrollo y producción usando archivos `.env` separados:
