@@ -275,6 +275,34 @@ Las operaciones sobre items solo están permitidas cuando la orden está en esta
 - **Eliminar último item:** Permitido. La orden queda sin items pero no se auto-elimina.
 - **Soft delete:** `DELETE` no elimina físicamente, solo marca `deleted_at`. El item se puede restaurar.
 
+### Bundles
+
+| Método | Ruta | Descripción | Validación |
+|---|---|---|---|
+| `POST` | `/api/orders/:id/items/:itemId/bundles` | Registrar un bundle (cálculo automático) | `stackConfigId` opcional (entero positivo) |
+| `GET` | `/api/orders/:id/items/:itemId/bundles` | Listar bundles de un item | ID de orden y item enteros positivos |
+| `GET` | `/api/bundles/:id` | Obtener bundle por ID | ID entero positivo |
+| `PATCH` | `/api/bundles/:id` | Actualizar `stackConfigId` del bundle (recalcula dimensiones) | Solo `stackConfigId` permitido |
+| `DELETE` | `/api/bundles/:id` | Eliminar bundle (soft delete) | ID entero positivo |
+| `POST` | `/api/bundles/:id/restore` | Restaurar bundle eliminado | ID entero positivo |
+
+> Para pruebas completas, ver `src/request/bundles.http` (26 casos de prueba).
+
+#### Cálculo automático
+
+Al registrar un bundle, el sistema calcula automáticamente:
+
+- **`totalPieces`** = `widthStack * heightStack` (del StackConfig)
+- **`cubicMeters`** = `(thickness * width * length * totalPieces) / 1,000,000,000` (dimensiones en mm → m³)
+- **`producedAt`** = fecha actual (automático)
+
+#### Comportamiento especial
+
+- **StackConfig default:** Si no se envía `stackConfigId`, se usa el `defaultStackConfigId` de la dimensión del item.
+- **Restricción de estado:** Solo se pueden registrar bundles si la orden está en `pending` o `in_production`. Si está en `completed` o `delivered`, se retorna `409 ConflictError`.
+- **PATCH:** Solo permite cambiar `stackConfigId`. Al actualizar, se recalculan automáticamente `totalPieces` y `cubicMeters` con la nueva configuración.
+- **Soft delete:** `DELETE` no elimina físicamente, solo marca `deleted_at`. El bundle se puede restaurar.
+
 ## Stack
 
 - **Runtime:** Node.js (ES Modules)

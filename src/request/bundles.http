@@ -1,0 +1,163 @@
+### Variables
+@base_url = http://localhost:3001/api
+@order_id = 1
+@item_id = 1
+
+### ============================================
+### POST - Registrar bundle (usa stackConfig default de la dimensión)
+### ============================================
+POST {{base_url}}/orders/{{order_id}}/items/{{item_id}}/bundles
+
+### ============================================
+### POST - Registrar bundle (con stackConfigId específico)
+### ============================================
+POST {{base_url}}/orders/{{order_id}}/items/{{item_id}}/bundles
+Content-Type: application/json
+
+{
+  "stackConfigId": 2
+}
+
+### ============================================
+### POST - Registrar bundle (stackConfigId no existe)
+### ============================================
+POST {{base_url}}/orders/{{order_id}}/items/{{item_id}}/bundles
+Content-Type: application/json
+
+{
+  "stackConfigId": 999
+}
+
+### ============================================
+### POST - Registrar bundle (stackConfigId inválido)
+### ============================================
+POST {{base_url}}/orders/{{order_id}}/items/{{item_id}}/bundles
+Content-Type: application/json
+
+{
+  "stackConfigId": -5
+}
+
+### ============================================
+### POST - Registrar bundle (orden no existe)
+### ============================================
+POST {{base_url}}/orders/999/items/{{item_id}}/bundles
+
+### ============================================
+### POST - Registrar bundle (item no existe en la orden)
+### ============================================
+POST {{base_url}}/orders/{{order_id}}/items/999/bundles
+
+### ============================================
+### POST - Registrar bundle (orden en estado "completed")
+### ============================================
+### Primero actualizar la orden a "completed" y luego probar
+POST {{base_url}}/orders/{{order_id}}/items/{{item_id}}/bundles
+
+### ============================================
+### GET - Listar bundles de un item
+### ============================================
+GET {{base_url}}/orders/{{order_id}}/items/{{item_id}}/bundles
+
+### ============================================
+### GET - Listar bundles de un item (item no existe)
+### ============================================
+GET {{base_url}}/orders/{{order_id}}/items/999/bundles
+
+### ============================================
+### GET - Listar bundles de un item (orden no existe)
+### ============================================
+GET {{base_url}}/orders/999/items/{{item_id}}/bundles
+
+### ============================================
+### GET - Obtener bundle por ID (existente)
+### ============================================
+GET {{base_url}}/bundles/1
+
+### ============================================
+### GET - Obtener bundle por ID (no existe)
+### ============================================
+GET {{base_url}}/bundles/999
+
+### ============================================
+### GET - Obtener bundle por ID (ID inválido)
+### ============================================
+GET {{base_url}}/bundles/abc
+
+### ============================================
+### PATCH - Actualizar bundle (cambiar stackConfigId)
+### ============================================
+PATCH {{base_url}}/bundles/1
+Content-Type: application/json
+
+{
+  "stackConfigId": 3
+}
+
+### ============================================
+### PATCH - Actualizar bundle (stackConfigId no existe)
+### ============================================
+PATCH {{base_url}}/bundles/1
+Content-Type: application/json
+
+{
+  "stackConfigId": 999
+}
+
+### ============================================
+### PATCH - Actualizar bundle (campo inválido)
+### ============================================
+PATCH {{base_url}}/bundles/1
+Content-Type: application/json
+
+{
+  "totalPieces": 100
+}
+
+### ============================================
+### PATCH - Actualizar bundle (body vacío)
+### ============================================
+PATCH {{base_url}}/bundles/1
+Content-Type: application/json
+
+{}
+
+### ============================================
+### PATCH - Actualizar bundle (bundle no existe)
+### ============================================
+PATCH {{base_url}}/bundles/999
+Content-Type: application/json
+
+{
+  "stackConfigId": 2
+}
+
+### ============================================
+### DELETE - Eliminar bundle (soft delete)
+### ============================================
+DELETE {{base_url}}/bundles/1
+
+### ============================================
+### DELETE - Eliminar bundle ya borrado
+### ============================================
+DELETE {{base_url}}/bundles/1
+
+### ============================================
+### DELETE - Eliminar bundle (no existe)
+### ============================================
+DELETE {{base_url}}/bundles/999
+
+### ============================================
+### POST - Restaurar bundle eliminado
+### ============================================
+POST {{base_url}}/bundles/1/restore
+
+### ============================================
+### POST - Restaurar bundle no eliminado (error)
+### ============================================
+POST {{base_url}}/bundles/2/restore
+
+### ============================================
+### POST - Restaurar bundle que no existe
+### ============================================
+POST {{base_url}}/bundles/999/restore

@@ -10,6 +10,7 @@ import dimensionRoutes from './routes/dimension.routes.js';
 import stackConfigRoutes from './routes/stack_config.routes.js';
 import orderRoutes from './routes/order.routes.js';
 import orderItemRoutes from './routes/order_item.routes.js';
+import bundleRoutes from './routes/bundle.routes.js';
 
 const app = express();
 
@@ -30,6 +31,7 @@ app.use('/api/dimensions', dimensionRoutes);
 app.use('/api/stack-configs', stackConfigRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/orders', orderItemRoutes);
+app.use('/api/bundles', bundleRoutes);
 
 /** @type {import('express').RequestHandler} */
 const notFoundHandler = (_req, _res, next) => {
