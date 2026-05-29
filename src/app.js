@@ -9,6 +9,7 @@ import {seed} from './seeders/initial.seed.js';
 import dimensionRoutes from './routes/dimension.routes.js';
 import stackConfigRoutes from './routes/stack_config.routes.js';
 import orderRoutes from './routes/order.routes.js';
+import orderItemRoutes from './routes/order_item.routes.js';
 
 const app = express();
 
@@ -28,6 +29,7 @@ app.get('/', (_req, res) => {
 app.use('/api/dimensions', dimensionRoutes);
 app.use('/api/stack-configs', stackConfigRoutes);
 app.use('/api/orders', orderRoutes);
+app.use('/api/orders', orderItemRoutes);
 
 /** @type {import('express').RequestHandler} */
 const notFoundHandler = (_req, _res, next) => {

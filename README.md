@@ -253,6 +253,28 @@ Para probar el entorno de producción en local:
 - **Respuesta aplanada:** Las dimensiones se devuelven como `{ "dimension": "45x70x3200", "quantity": 5 }` en vez del objeto completo.
 - **Rollback en error:** Si una dimensión del array no existe, se elimina la orden creada para evitar órdenes huérfanas.
 
+### OrderItems
+
+| Método | Ruta | Descripción | Validación |
+|---|---|---|---|
+| `POST` | `/api/orders/:id/items` | Agregar items a una orden existente | `items` array con al menos 1 `{ dimensionId, quantity }` |
+| `PATCH` | `/api/orders/:id/items/:itemId` | Actualizar cantidad de un item | Al menos un campo válido, enteros > 0 |
+| `DELETE` | `/api/orders/:id/items/:itemId` | Eliminar un item (soft delete) | ID de orden y item enteros positivos |
+| `POST` | `/api/orders/:id/items/:itemId/restore` | Restaurar item eliminado | ID de orden y item enteros positivos |
+
+> Para pruebas completas, ver `src/request/orders_items.http` (24 casos de prueba).
+
+#### Restricción de estado
+
+Las operaciones sobre items solo están permitidas cuando la orden está en estado `pending` o `in_production`. Si la orden está en `completed` o `delivered`, se retorna `409 ConflictError`.
+
+#### Comportamiento especial
+
+- **Dimensión duplicada:** Si se agrega una dimensión que ya existe en la orden, se suma la cantidad al item existente en lugar de crear uno nuevo.
+- **Respuesta:** Todas las operaciones retornan la orden completa con sus items aplanados (formato `{ "dimension": "45x70x3200", "quantity": 5 }`).
+- **Eliminar último item:** Permitido. La orden queda sin items pero no se auto-elimina.
+- **Soft delete:** `DELETE` no elimina físicamente, solo marca `deleted_at`. El item se puede restaurar.
+
 ## Stack
 
 - **Runtime:** Node.js (ES Modules)

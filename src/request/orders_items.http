@@ -1,0 +1,211 @@
+### Variables
+@base_url = http://localhost:3001/api
+
+### ============================================
+### POST - Agregar items a una orden (pendiente)
+### ============================================
+POST {{base_url}}/orders/1/items
+Content-Type: application/json
+
+{
+  "items": [
+    { "dimensionId": 2, "quantity": 3 },
+    { "dimensionId": 3, "quantity": 5 }
+  ]
+}
+
+### ============================================
+### POST - Agregar items (dimensión que ya existe en la orden)
+### ============================================
+POST {{base_url}}/orders/1/items
+Content-Type: application/json
+
+{
+  "items": [
+    { "dimensionId": 1, "quantity": 2 }
+  ]
+}
+
+### ============================================
+### POST - Agregar items (dimensión no existe)
+### ============================================
+POST {{base_url}}/orders/1/items
+Content-Type: application/json
+
+{
+  "items": [
+    { "dimensionId": 999, "quantity": 3 }
+  ]
+}
+
+### ============================================
+### POST - Agregar items (body vacío)
+### ============================================
+POST {{base_url}}/orders/1/items
+Content-Type: application/json
+
+{}
+
+### ============================================
+### POST - Agregar items (items no es array)
+### ============================================
+POST {{base_url}}/orders/1/items
+Content-Type: application/json
+
+{
+  "items": { "dimensionId": 1, "quantity": 3 }
+}
+
+### ============================================
+### POST - Agregar items (array vacío)
+### ============================================
+POST {{base_url}}/orders/1/items
+Content-Type: application/json
+
+{
+  "items": []
+}
+
+### ============================================
+### POST - Agregar items (falta dimensionId)
+### ============================================
+POST {{base_url}}/orders/1/items
+Content-Type: application/json
+
+{
+  "items": [
+    { "quantity": 3 }
+  ]
+}
+
+### ============================================
+### POST - Agregar items (falta quantity)
+### ============================================
+POST {{base_url}}/orders/1/items
+Content-Type: application/json
+
+{
+  "items": [
+    { "dimensionId": 1 }
+  ]
+}
+
+### ============================================
+### POST - Agregar items (cantidad negativa)
+### ============================================
+POST {{base_url}}/orders/1/items
+Content-Type: application/json
+
+{
+  "items": [
+    { "dimensionId": 1, "quantity": -5 }
+  ]
+}
+
+### ============================================
+### POST - Agregar items (orden no existe)
+### ============================================
+POST {{base_url}}/orders/999/items
+Content-Type: application/json
+
+{
+  "items": [
+    { "dimensionId": 1, "quantity": 3 }
+  ]
+}
+
+### ============================================
+### POST - Agregar items (orden en estado "completed")
+### ============================================
+### Primero actualizar la orden a "completed" y luego probar
+POST {{base_url}}/orders/1/items
+Content-Type: application/json
+
+{
+  "items": [
+    { "dimensionId": 1, "quantity": 3 }
+  ]
+}
+
+### ============================================
+### PATCH - Actualizar cantidad de un item
+### ============================================
+PATCH {{base_url}}/orders/1/items/1
+Content-Type: application/json
+
+{
+  "quantity": 10
+}
+
+### ============================================
+### PATCH - Actualizar item (cantidad negativa)
+### ============================================
+PATCH {{base_url}}/orders/1/items/1
+Content-Type: application/json
+
+{
+  "quantity": -3
+}
+
+### ============================================
+### PATCH - Actualizar item (body vacío)
+### ============================================
+PATCH {{base_url}}/orders/1/items/1
+Content-Type: application/json
+
+{}
+
+### ============================================
+### PATCH - Actualizar item (item no existe)
+### ============================================
+PATCH {{base_url}}/orders/1/items/999
+Content-Type: application/json
+
+{
+  "quantity": 5
+}
+
+### ============================================
+### PATCH - Actualizar item (item no pertenece a esta orden)
+### ============================================
+PATCH {{base_url}}/orders/1/items/2
+Content-Type: application/json
+
+{
+  "quantity": 7
+}
+
+### ============================================
+### DELETE - Eliminar item de una orden
+### ============================================
+DELETE {{base_url}}/orders/1/items/1
+
+### ============================================
+### DELETE - Eliminar item ya borrado
+### ============================================
+DELETE {{base_url}}/orders/1/items/1
+
+### ============================================
+### DELETE - Eliminar item (no existe)
+### ============================================
+DELETE {{base_url}}/orders/1/items/999
+
+### ============================================
+### DELETE - Eliminar item (item no pertenece a esta orden)
+### ============================================
+DELETE {{base_url}}/orders/1/items/2
+
+### ============================================
+### POST - Restaurar item eliminado
+### ============================================
+POST {{base_url}}/orders/1/items/1/restore
+
+### ============================================
+### POST - Restaurar item no eliminado (error)
+### ============================================
+POST {{base_url}}/orders/1/items/2/restore
+
+### ============================================
+### POST - Restaurar item que no existe
+### ============================================
+POST {{base_url}}/orders/1/items/999/restore
