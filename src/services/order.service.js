@@ -40,6 +40,7 @@ const formatOrderResponse = (order) => {
       }
 
       return {
+        itemId: item.id,
         dimension: dimension ? `${dimension.thickness}x${dimension.width}x${dimension.length}` : null,
         stackConfig: stackConfig ? `${stackConfig.widthStack}x${stackConfig.heightStack}` : null,
         quantity,
