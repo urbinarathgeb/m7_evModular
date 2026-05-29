@@ -1,58 +1,31 @@
 ### Variables
 @base_url = http://localhost:3001/api
 
+### Nota: El seed ya contiene 3 órdenes con items y bundles.
+### Este flujo agrega bundles adicionales para demostrar agregación
+### de stock para la dimensión 45x70x3200 (dim 1) en 2 órdenes distintas.
+
 ### ============================================
-### GET - Vista de stock global (sin órdenes)
+### Paso 1: Stock inicial con datos seed
 ### ============================================
-### Con datos de seed (solo dimensiones, sin órdenes)
 GET {{base_url}}/stock
 
 ### ============================================
-### GET - Vista de stock global (con órdenes y bundles)
+### Paso 2: Registrar bundle en order 1 (pending), item 1 (dim 1)
 ### ============================================
-### Requiere flujo previo:
-### 1. Crear orden con dimensiones
-### 2. Registrar bundles para algunos items
-### 3. Ejecutar este endpoint para ver el stock agrupado
-GET {{base_url}}/stock
-
-### ============================================
-### Flujo completo para probar stock con datos:
-### ============================================
-
-### Paso 1: Crear orden
-POST {{base_url}}/orders
-Content-Type: application/json
-
-{
-  "client": "Aserradero Central",
-  "orderDate": "29-05-2026",
-  "dimensions": [
-    { "dimensionId": 1, "quantity": 5 },
-    { "dimensionId": 2, "quantity": 3 }
-  ]
-}
-
-### Paso 2: Crear otra orden con la misma dimensión
-POST {{base_url}}/orders
-Content-Type: application/json
-
-{
-  "client": "Maderas del Sur",
-  "orderDate": "29-05-2026",
-  "dimensions": [
-    { "dimensionId": 1, "quantity": 10 }
-  ]
-}
-
-### Paso 3: Registrar bundle para orden 1, item 1
 POST {{base_url}}/orders/1/items/1/bundles
 
-### Paso 4: Registrar otro bundle para orden 1, item 1
+### ============================================
+### Paso 3: Registrar otro bundle en order 1, item 1 (dim 1)
+### ============================================
 POST {{base_url}}/orders/1/items/1/bundles
 
-### Paso 5: Registrar bundle para orden 2, item 1
-POST {{base_url}}/orders/2/items/1/bundles
+### ============================================
+### Paso 4: Registrar bundle en order 2 (in_production), item 5 (dim 1)
+### ============================================
+POST {{base_url}}/orders/2/items/5/bundles
 
-### Paso 6: Ver stock global (debería agrupar dimensión 1 de ambas órdenes)
+### ============================================
+### Paso 5: Stock actualizado — dim 1 agregada entre ambas órdenes
+### ============================================
 GET {{base_url}}/stock

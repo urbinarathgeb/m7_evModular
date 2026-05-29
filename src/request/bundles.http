@@ -1,5 +1,9 @@
 ### Variables
 @base_url = http://localhost:3001/api
+
+### Nota: El seed crea bundles 1-7 en orders 2 y 3.
+### Order 1 (pending) NO tiene bundles — ideal para tests de creación.
+### GET/PATCH/DELETE/RESTORE sobre bundle/1 operan sobre seed bundle 1.
 @order_id = 1
 @item_id = 1
 
@@ -49,10 +53,9 @@ POST {{base_url}}/orders/999/items/{{item_id}}/bundles
 POST {{base_url}}/orders/{{order_id}}/items/999/bundles
 
 ### ============================================
-### POST - Registrar bundle (orden en estado "completed")
+### POST - Registrar bundle (orden seed 3 en estado "completed")
 ### ============================================
-### Primero actualizar la orden a "completed" y luego probar
-POST {{base_url}}/orders/{{order_id}}/items/{{item_id}}/bundles
+POST {{base_url}}/orders/3/items/6/bundles
 
 ### ============================================
 ### GET - Listar bundles de un item
@@ -70,7 +73,7 @@ GET {{base_url}}/orders/{{order_id}}/items/999/bundles
 GET {{base_url}}/orders/999/items/{{item_id}}/bundles
 
 ### ============================================
-### GET - Obtener bundle por ID (existente)
+### GET - Obtener seed bundle 1 por ID
 ### ============================================
 GET {{base_url}}/bundles/1
 
@@ -85,7 +88,7 @@ GET {{base_url}}/bundles/999
 GET {{base_url}}/bundles/abc
 
 ### ============================================
-### PATCH - Actualizar bundle (cambiar stackConfigId)
+### PATCH - Actualizar seed bundle 1 (cambiar stackConfigId)
 ### ============================================
 PATCH {{base_url}}/bundles/1
 Content-Type: application/json
@@ -95,7 +98,7 @@ Content-Type: application/json
 }
 
 ### ============================================
-### PATCH - Actualizar bundle (stackConfigId no existe)
+### PATCH - Actualizar seed bundle 1 (stackConfigId no existe)
 ### ============================================
 PATCH {{base_url}}/bundles/1
 Content-Type: application/json
@@ -105,7 +108,7 @@ Content-Type: application/json
 }
 
 ### ============================================
-### PATCH - Actualizar bundle (campo inválido)
+### PATCH - Actualizar seed bundle 1 (campo inválido)
 ### ============================================
 PATCH {{base_url}}/bundles/1
 Content-Type: application/json
@@ -115,7 +118,7 @@ Content-Type: application/json
 }
 
 ### ============================================
-### PATCH - Actualizar bundle (body vacío)
+### PATCH - Actualizar seed bundle 1 (body vacío)
 ### ============================================
 PATCH {{base_url}}/bundles/1
 Content-Type: application/json
@@ -133,12 +136,12 @@ Content-Type: application/json
 }
 
 ### ============================================
-### DELETE - Eliminar bundle (soft delete)
+### DELETE - Eliminar seed bundle 1 (soft delete)
 ### ============================================
 DELETE {{base_url}}/bundles/1
 
 ### ============================================
-### DELETE - Eliminar bundle ya borrado
+### DELETE - Eliminar seed bundle 1 ya borrado
 ### ============================================
 DELETE {{base_url}}/bundles/1
 
@@ -148,12 +151,12 @@ DELETE {{base_url}}/bundles/1
 DELETE {{base_url}}/bundles/999
 
 ### ============================================
-### POST - Restaurar bundle eliminado
+### POST - Restaurar seed bundle 1 eliminado
 ### ============================================
 POST {{base_url}}/bundles/1/restore
 
 ### ============================================
-### POST - Restaurar bundle no eliminado (error)
+### POST - Restaurar seed bundle 2 (no eliminado, debe dar error)
 ### ============================================
 POST {{base_url}}/bundles/2/restore
 

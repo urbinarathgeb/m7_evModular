@@ -1,6 +1,13 @@
 ### Variables
 @base_url = http://localhost:3001/api
 
+### Nota: El seed crea items en:
+###   Order 1 (pending):       items 1 (dim 1), 2 (dim 3)
+###   Order 2 (in_production): items 3 (dim 2), 4 (dim 5), 5 (dim 1)
+###   Order 3 (completed):     item 6 (dim 6)
+### Los tests usan order 1 (pending) para crear/modificar items.
+### Los tests de "item no pertenece a esta orden" usan item 3 (de order 2).
+
 ### ============================================
 ### POST - Agregar items a una orden (pendiente)
 ### ============================================
@@ -115,10 +122,9 @@ Content-Type: application/json
 }
 
 ### ============================================
-### POST - Agregar items (orden en estado "completed")
+### POST - Agregar items (orden seed 3 en estado "completed")
 ### ============================================
-### Primero actualizar la orden a "completed" y luego probar
-POST {{base_url}}/orders/1/items
+POST {{base_url}}/orders/3/items
 Content-Type: application/json
 
 {
@@ -166,9 +172,9 @@ Content-Type: application/json
 }
 
 ### ============================================
-### PATCH - Actualizar item (item no pertenece a esta orden)
+### PATCH - Actualizar item (item no pertenece a esta orden — item 3 es de order 2)
 ### ============================================
-PATCH {{base_url}}/orders/1/items/2
+PATCH {{base_url}}/orders/1/items/3
 Content-Type: application/json
 
 {
@@ -191,17 +197,17 @@ DELETE {{base_url}}/orders/1/items/1
 DELETE {{base_url}}/orders/1/items/999
 
 ### ============================================
-### DELETE - Eliminar item (item no pertenece a esta orden)
+### DELETE - Eliminar item (item no pertenece a esta orden — item 3 es de order 2)
 ### ============================================
-DELETE {{base_url}}/orders/1/items/2
+DELETE {{base_url}}/orders/1/items/3
 
 ### ============================================
-### POST - Restaurar item eliminado
+### POST - Restaurar item eliminado (item 1, borrado arriba)
 ### ============================================
 POST {{base_url}}/orders/1/items/1/restore
 
 ### ============================================
-### POST - Restaurar item no eliminado (error)
+### POST - Restaurar item seed 2 (no eliminado, debe dar error)
 ### ============================================
 POST {{base_url}}/orders/1/items/2/restore
 
