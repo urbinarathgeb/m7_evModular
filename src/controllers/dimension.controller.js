@@ -20,8 +20,8 @@ export const detail = asyncHandler(async (req, res) => {
 });
 
 export const create = asyncHandler(async (req, res) => {
-  const { thickness, width, length } = req.body;
-  const dimension = await dimensionService.create({ thickness, width, length });
+  const { thickness, width, length, stackConfig } = req.body;
+  const dimension = await dimensionService.create({ thickness, width, length, stackConfig });
   return success(res, {
     message: 'Dimensión creada exitosamente',
     data: dimension,

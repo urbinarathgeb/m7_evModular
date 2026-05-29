@@ -8,9 +8,9 @@ import Bundle from './bundle.model.js';
 Order.belongsToMany(Dimension, { through: OrderItem, foreignKey: 'orderId', otherKey: 'dimensionId', as: 'dimensions' });
 Dimension.belongsToMany(Order, { through: OrderItem, foreignKey: 'dimensionId', otherKey: 'orderId', as: 'orders' });
 
-// Dimension ↔ StackConfig (1:N)
-Dimension.hasMany(StackConfig, { foreignKey: 'dimensionId', as: 'stackConfigs' });
-StackConfig.belongsTo(Dimension, { foreignKey: 'dimensionId', as: 'dimension' });
+// Dimension → StackConfig (N:1, default config)
+Dimension.belongsTo(StackConfig, { foreignKey: 'defaultStackConfigId', as: 'defaultStackConfig' });
+StackConfig.hasMany(Dimension, { foreignKey: 'defaultStackConfigId', as: 'dimensionsUsingDefault' });
 
 // Order ↔ OrderItem (1:N)
 Order.hasMany(OrderItem, { foreignKey: 'orderId', as: 'items' });

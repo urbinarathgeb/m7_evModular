@@ -8,14 +8,15 @@
 
 - **Eliminar la ambigüedad:** Evitar que el operario olvide las medidas o la configuración de apilado (piezas, filas, separadores).
 - **Gestión de Pedidos:** Control total sobre qué falta producir para satisfacer la demanda real del cliente.
-- **Trazabilidad Extrema:** Registro histórico inmutable de cómo se configuró cada paquete.
+- **Trazabilidad Extrema:** Registro histórico inmutable de cómo se configuró cada paquete, incluyendo la configuración de apilado real usada.
 - **Simplicidad Operativa:** Registro rápido mediante valores sugeridos con libertad total para realizar ajustes manuales ("Override").
 
 ### Filosofía del Sistema
 
 - **Pedido-Céntrico:** El sistema no busca llenar un inventario infinito; solo existe para cumplir órdenes de venta.
 - **Agnosticismo del Material:** El sistema no depende del tipo de madera. La unidad de trabajo es la **Escuadría (Dimensiones)**.
-- **Flexibilidad (Default vs. Override):** Se estandariza el trabajo para el 90% de los casos, pero se permite la personalización total para el 10% de pedidos especiales.
+- **Configuración Reutilizable:** Las configuraciones de apilado (StackConfig) son independientes de las dimensiones. Dos dimensiones distintas pueden compartir la misma configuración.
+- **Flexibilidad (Default vs. Override):** Cada dimensión tiene una configuración de apilado sugerida (default), pero al registrar un paquete el operario puede elegir cualquier otra configuración existente o crear una nueva en el momento.
 
 ## Arquitectura de Datos
 
@@ -24,7 +25,7 @@ Para permitir órdenes mixtas (múltiples medidas en un mismo pedido), la base d
 | **Entidad**       | **Propósito**                                                        |
 |-------------------|----------------------------------------------------------------------|
 | **Escuadría**     | Catálogo base de medidas físicas (ej: 18x90x3000).                   |
-| **Configuración** | Receta técnica: Ancho, Alto, filas entre separadores.                |
+| **Configuración** | Receta técnica reutilizable: Ancho, Alto, filas entre separadores.   |
 | **Orden**         | Contenedor maestro: Vincula cliente, fecha y estado global.          |
 | **DetalleOrden**  | "Items" de la orden: Define cuánto producir de cada escuadría.       |
 | **Paquete**       | Registro único de producción. "Congela" la configuración real usada. |
@@ -38,6 +39,7 @@ Para permitir órdenes mixtas (múltiples medidas en un mismo pedido), la base d
 | `thickness` | INTEGER | Espesor en milímetros |
 | `width` | INTEGER | Ancho en milímetros |
 | `length` | INTEGER | Largo en milímetros |
+| `default_stack_config_id` | INTEGER (FK) | Configuración de apilado sugerida (obligatoria) |
 | `deleted_at` | TIMESTAMP | Soft delete (automático) |
 
 > Índice único en `(thickness, width, length)` para evitar duplicados activos.
@@ -46,11 +48,12 @@ Para permitir órdenes mixtas (múltiples medidas en un mismo pedido), la base d
 | Campo | Tipo | Descripción |
 |---|---|---|
 | `id` | INTEGER (PK) | Identificador único |
-| `dimension_id` | INTEGER (FK) | Referencia a `dimensions` |
 | `width_stack` | INTEGER | Piezas a lo ancho |
 | `height_stack` | INTEGER | Piezas a lo alto |
 | `separator_every` | INTEGER | Filas entre cada separador |
 | `deleted_at` | TIMESTAMP | Soft delete (automático) |
+
+> Las configuraciones de apilado son independientes y reutilizables entre dimensiones.
 
 #### Order (`orders`)
 | Campo | Tipo | Descripción |
@@ -75,7 +78,7 @@ Para permitir órdenes mixtas (múltiples medidas en un mismo pedido), la base d
 |---|---|---|
 | `id` | INTEGER (PK) | Identificador único |
 | `order_item_id` | INTEGER (FK) | Referencia a `order_items` |
-| `stack_config_id` | INTEGER (FK) | Referencia a `stack_configs` |
+| `stack_config_id` | INTEGER (FK) | Configuración de apilado usada (puede ser distinta al default) |
 | `produced_at` | TIMESTAMP | Fecha de producción |
 | `total_pieces` | INTEGER | Piezas totales (`widthStack * heightStack`) |
 | `cubic_meters` | DECIMAL(10,4) | Volumen total en m³ |
@@ -95,7 +98,8 @@ Todos los modelos usan **soft delete** (`paranoid: true` en Sequelize). Esto sig
 | Relación | Tipo |
 |---|---|
 | Order ↔ Dimension | N:M (a través de OrderItem) |
-| Dimension → StackConfig | 1:N |
+| Dimension → StackConfig | N:1 (default_stack_config_id, obligatorio) |
+| StackConfig → Dimension | 1:N (puede ser default de muchas dimensiones) |
 | Order → OrderItem | 1:N |
 | Dimension → OrderItem | 1:N |
 | OrderItem → Bundle | 1:N |
@@ -186,7 +190,7 @@ Para probar el entorno de producción en local:
 |---|---|---|---|
 | `GET` | `/api/dimensions` | Listar todas las dimensiones | — |
 | `GET` | `/api/dimensions/:id` | Obtener dimensión por ID | ID entero positivo |
-| `POST` | `/api/dimensions` | Crear nueva dimensión | `thickness`, `width`, `length` obligatorios (enteros > 0) |
+| `POST` | `/api/dimensions` | Crear nueva dimensión con StackConfig default | `thickness`, `width`, `length` + `stackConfig` obligatorios |
 | `PUT` | `/api/dimensions/:id` | Actualizar dimensión (completa) | Los 3 campos obligatorios, enteros > 0 |
 | `PATCH` | `/api/dimensions/:id` | Actualizar dimensión (parcial) | Al menos un campo, enteros > 0 |
 | `POST` | `/api/dimensions/:id/restore` | Restaurar dimensión eliminada | ID entero positivo |
@@ -199,6 +203,7 @@ Para probar el entorno de producción en local:
 - **Soft delete:** `DELETE` no elimina físicamente, solo marca `deleted_at`. La dimensión desaparece de las consultas pero se puede restaurar.
 - **Restore al crear duplicada:** Si se intenta crear una dimensión con las mismas medidas que una soft-deleted, el sistema la restaura automáticamente en vez de crear un nuevo registro.
 - **Índice único:** No permite crear dos dimensiones activas con las mismas medidas (`thickness`, `width`, `length`).
+- **StackConfig obligatorio:** Toda dimensión se crea con su configuración de apilado default. No existe una dimensión sin configuración sugerida.
 
 ### Orders
 

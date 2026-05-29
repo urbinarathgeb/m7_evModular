@@ -24,6 +24,11 @@ Dimension.init({
     allowNull: false,
     comment: 'Largo en milímetros',
   },
+  defaultStackConfigId: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    comment: 'Configuración de apilado sugerida',
+  },
 }, {
   sequelize,
   modelName: 'Dimension',

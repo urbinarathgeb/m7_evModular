@@ -27,7 +27,39 @@ GET {{base_url}}/dimensions/abc
 GET {{base_url}}/dimensions/-1
 
 ### ============================================
-### POST - Crear dimensión válida
+### POST - Crear dimensión válida (con stackConfig)
+### ============================================
+POST {{base_url}}/dimensions
+Content-Type: application/json
+
+{
+  "thickness": 25,
+  "width": 80,
+  "length": 3200,
+  "stackConfig": {
+    "widthStack": 12,
+    "heightStack": 20,
+    "separatorEvery": 5
+  }
+}
+
+### ============================================
+### POST - Crear dimensión (falta thickness)
+### ============================================
+POST {{base_url}}/dimensions
+Content-Type: application/json
+
+{
+  "width": 80,
+  "length": 3200,
+  "stackConfig": {
+    "widthStack": 12,
+    "heightStack": 20
+  }
+}
+
+### ============================================
+### POST - Crear dimensión (falta stackConfig)
 ### ============================================
 POST {{base_url}}/dimensions
 Content-Type: application/json
@@ -39,24 +71,18 @@ Content-Type: application/json
 }
 
 ### ============================================
-### POST - Crear dimensión (falta thickness)
+### POST - Crear dimensión (stackConfig incompleto)
 ### ============================================
 POST {{base_url}}/dimensions
 Content-Type: application/json
 
 {
+  "thickness": 25,
   "width": 80,
-  "length": 3200
-}
-
-### ============================================
-### POST - Crear dimensión (falta width y length)
-### ============================================
-POST {{base_url}}/dimensions
-Content-Type: application/json
-
-{
-  "thickness": 25
+  "length": 3200,
+  "stackConfig": {
+    "widthStack": 12
+  }
 }
 
 ### ============================================
@@ -76,7 +102,11 @@ Content-Type: application/json
 {
   "thickness": -10,
   "width": 80,
-  "length": 3200
+  "length": 3200,
+  "stackConfig": {
+    "widthStack": 12,
+    "heightStack": 20
+  }
 }
 
 ### ============================================
@@ -88,7 +118,11 @@ Content-Type: application/json
 {
   "thickness": 25.5,
   "width": 80,
-  "length": 3200
+  "length": 3200,
+  "stackConfig": {
+    "widthStack": 12,
+    "heightStack": 20
+  }
 }
 
 ### ============================================
@@ -100,7 +134,11 @@ Content-Type: application/json
 {
   "thickness": 45,
   "width": 70,
-  "length": 3200
+  "length": 3200,
+  "stackConfig": {
+    "widthStack": 15,
+    "heightStack": 14
+  }
 }
 
 ### ============================================
@@ -252,7 +290,11 @@ Content-Type: application/json
 {
   "thickness": 99,
   "width": 99,
-  "length": 9999
+  "length": 9999,
+  "stackConfig": {
+    "widthStack": 10,
+    "heightStack": 10
+  }
 }
 
 ### Paso 2: Eliminarla (anotar el ID de la respuesta anterior y reemplazar)
@@ -265,5 +307,9 @@ Content-Type: application/json
 {
   "thickness": 99,
   "width": 99,
-  "length": 9999
+  "length": 9999,
+  "stackConfig": {
+    "widthStack": 10,
+    "heightStack": 10
+  }
 }

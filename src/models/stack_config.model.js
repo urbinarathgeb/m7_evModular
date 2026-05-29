@@ -9,14 +9,6 @@ StackConfig.init({
     autoIncrement: true,
     primaryKey: true,
   },
-  dimensionId: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
-    references: {
-      model: 'dimensions',
-      key: 'id',
-    },
-  },
   widthStack: {
     type: DataTypes.INTEGER,
     allowNull: false,

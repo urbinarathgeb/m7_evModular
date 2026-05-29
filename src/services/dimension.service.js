@@ -1,15 +1,28 @@
 import { Op } from 'sequelize';
+import sequelize from '../config/db.config.js';
 import Dimension from '../models/dimension.model.js';
+import StackConfig from '../models/stack_config.model.js';
 import { NotFoundError, ConflictError } from '../utils/errors.js';
 
 export const getAll = async () => {
   return Dimension.findAll({
+    include: [{
+      model: StackConfig,
+      as: 'defaultStackConfig',
+      attributes: ['id', 'widthStack', 'heightStack', 'separatorEvery'],
+    }],
     order: [['thickness', 'ASC'], ['width', 'ASC'], ['length', 'ASC']],
   });
 };
 
 export const getById = async (id) => {
-  const dimension = await Dimension.findByPk(id);
+  const dimension = await Dimension.findByPk(id, {
+    include: [{
+      model: StackConfig,
+      as: 'defaultStackConfig',
+      attributes: ['id', 'widthStack', 'heightStack', 'separatorEvery'],
+    }],
+  });
   if (!dimension) {
     throw new NotFoundError('Dimensión no encontrada');
   }
@@ -17,7 +30,7 @@ export const getById = async (id) => {
 };
 
 export const create = async (data) => {
-  const { thickness, width, length } = data;
+  const { thickness, width, length, stackConfig } = data;
 
   const existingDeleted = await Dimension.findOne({
     where: { thickness, width, length },
@@ -26,11 +39,33 @@ export const create = async (data) => {
 
   if (existingDeleted && existingDeleted.deletedAt) {
     await existingDeleted.restore();
-    return existingDeleted;
+    return getById(existingDeleted.id);
   }
 
   try {
-    return await Dimension.create(data);
+    return await sequelize.transaction(async (t) => {
+      const newStackConfig = await StackConfig.create({
+        widthStack: stackConfig.widthStack,
+        heightStack: stackConfig.heightStack,
+        separatorEvery: stackConfig.separatorEvery ?? (stackConfig.heightStack <= 10 ? stackConfig.heightStack : Math.ceil(stackConfig.heightStack / 5)),
+      }, { transaction: t });
+
+      const dimension = await Dimension.create({
+        thickness,
+        width,
+        length,
+        defaultStackConfigId: newStackConfig.id,
+      }, { transaction: t });
+
+      return Dimension.findByPk(dimension.id, {
+        include: [{
+          model: StackConfig,
+          as: 'defaultStackConfig',
+          attributes: ['id', 'widthStack', 'heightStack', 'separatorEvery'],
+        }],
+        transaction: t,
+      });
+    });
   } catch (error) {
     if (error.name === 'SequelizeUniqueConstraintError') {
       throw new ConflictError('Ya existe una dimensión con esas medidas');
@@ -45,7 +80,7 @@ export const update = async (id, data) => {
     throw new NotFoundError('Dimensión no encontrada');
   }
   await dimension.update(data);
-  return dimension;
+  return getById(dimension.id);
 };
 
 export const remove = async (id) => {
@@ -66,5 +101,5 @@ export const restore = async (id) => {
     throw new ConflictError('La dimensión no está eliminada');
   }
   await dimension.restore();
-  return dimension;
+  return getById(dimension.id);
 };

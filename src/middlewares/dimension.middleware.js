@@ -10,7 +10,7 @@ export const validateId = (req, _res, next) => {
 
 export const validateCreate = (req, _res, next) => {
   const errors = [];
-  const { thickness, width, length } = req.body;
+  const { thickness, width, length, stackConfig } = req.body;
 
   if (thickness === undefined || thickness === null) {
     errors.push({ field: 'thickness', message: 'El espesor es obligatorio' });
@@ -28,6 +28,30 @@ export const validateCreate = (req, _res, next) => {
     errors.push({ field: 'length', message: 'El largo es obligatorio' });
   } else if (!Number.isInteger(length) || length < 1) {
     errors.push({ field: 'length', message: 'El largo debe ser un número entero positivo' });
+  }
+
+  if (!stackConfig || typeof stackConfig !== 'object') {
+    errors.push({ field: 'stackConfig', message: 'La configuración de apilado es obligatoria' });
+  } else {
+    const { widthStack, heightStack, separatorEvery } = stackConfig;
+
+    if (widthStack === undefined || widthStack === null) {
+      errors.push({ field: 'stackConfig.widthStack', message: 'Las piezas a lo ancho son obligatorias' });
+    } else if (!Number.isInteger(widthStack) || widthStack < 1) {
+      errors.push({ field: 'stackConfig.widthStack', message: 'Las piezas a lo ancho deben ser un entero positivo' });
+    }
+
+    if (heightStack === undefined || heightStack === null) {
+      errors.push({ field: 'stackConfig.heightStack', message: 'Las piezas a lo alto son obligatorias' });
+    } else if (!Number.isInteger(heightStack) || heightStack < 1) {
+      errors.push({ field: 'stackConfig.heightStack', message: 'Las piezas a lo alto deben ser un entero positivo' });
+    }
+
+    if (separatorEvery !== undefined) {
+      if (!Number.isInteger(separatorEvery) || separatorEvery < 1) {
+        errors.push({ field: 'stackConfig.separatorEvery', message: 'Las filas entre separadores deben ser un entero positivo' });
+      }
+    }
   }
 
   if (errors.length > 0) {

@@ -23,7 +23,7 @@ const seedData = [
 const calculateSeparatorEvery = (heightStack) => {
   if (heightStack <= 10) return heightStack;
   return Math.ceil(heightStack / 5);
-}
+};
 
 export const seed = async () => {
   const existingCount = await Dimension.count();
@@ -33,26 +33,37 @@ export const seed = async () => {
   }
 
   for (const row of seedData) {
-    const [dimension] = await Dimension.findOrCreate({
+    const existing = await Dimension.findOne({
       where: {
         thickness: row.thickness,
         width: row.width,
         length: row.length,
       },
-      defaults: {
-        thickness: row.thickness,
-        width: row.width,
-        length: row.length,
-      },
+      paranoid: false,
     });
 
-    await StackConfig.create({
-      dimensionId: dimension.id,
+    if (existing && existing.deletedAt) {
+      await existing.restore();
+      continue;
+    }
+
+    if (existing) {
+      continue;
+    }
+
+    const stackConfig = await StackConfig.create({
       widthStack: row.widthStack,
       heightStack: row.heightStack,
       separatorEvery: calculateSeparatorEvery(row.heightStack),
     });
+
+    await Dimension.create({
+      thickness: row.thickness,
+      width: row.width,
+      length: row.length,
+      defaultStackConfigId: stackConfig.id,
+    });
   }
 
   console.log(`✅ Seed inicial ejecutado: ${seedData.length} dimensiones y configuraciones`);
-}
+};
