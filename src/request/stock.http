@@ -2,12 +2,57 @@
 @base_url = http://localhost:3001/api
 
 ### ============================================
-### GET - Vista de stock global (todas las órdenes agrupadas por dimensión)
+### GET - Vista de stock global (sin órdenes)
 ### ============================================
+### Con datos de seed (solo dimensiones, sin órdenes)
 GET {{base_url}}/stock
 
 ### ============================================
-### GET - Vista de stock global (sin órdenes)
+### GET - Vista de stock global (con órdenes y bundles)
 ### ============================================
-### Reiniciar la BD para probar sin datos
+### Requiere flujo previo:
+### 1. Crear orden con dimensiones
+### 2. Registrar bundles para algunos items
+### 3. Ejecutar este endpoint para ver el stock agrupado
+GET {{base_url}}/stock
+
+### ============================================
+### Flujo completo para probar stock con datos:
+### ============================================
+
+### Paso 1: Crear orden
+POST {{base_url}}/orders
+Content-Type: application/json
+
+{
+  "client": "Aserradero Central",
+  "orderDate": "29-05-2026",
+  "dimensions": [
+    { "dimensionId": 1, "quantity": 5 },
+    { "dimensionId": 2, "quantity": 3 }
+  ]
+}
+
+### Paso 2: Crear otra orden con la misma dimensión
+POST {{base_url}}/orders
+Content-Type: application/json
+
+{
+  "client": "Maderas del Sur",
+  "orderDate": "29-05-2026",
+  "dimensions": [
+    { "dimensionId": 1, "quantity": 10 }
+  ]
+}
+
+### Paso 3: Registrar bundle para orden 1, item 1
+POST {{base_url}}/orders/1/items/1/bundles
+
+### Paso 4: Registrar otro bundle para orden 1, item 1
+POST {{base_url}}/orders/1/items/1/bundles
+
+### Paso 5: Registrar bundle para orden 2, item 1
+POST {{base_url}}/orders/2/items/1/bundles
+
+### Paso 6: Ver stock global (debería agrupar dimensión 1 de ambas órdenes)
 GET {{base_url}}/stock
