@@ -1,0 +1,13 @@
+### Variables
+@base_url = http://localhost:3001/api
+
+### ============================================
+### GET - Vista de stock global (todas las órdenes agrupadas por dimensión)
+### ============================================
+GET {{base_url}}/stock
+
+### ============================================
+### GET - Vista de stock global (sin órdenes)
+### ============================================
+### Reiniciar la BD para probar sin datos
+GET {{base_url}}/stock

@@ -13,6 +13,33 @@ const calculateBundleMetrics = (dimension, stackConfig) => {
   return { totalPieces, cubicMeters };
 };
 
+const formatDateCL = (date) => {
+  if (!date) return null;
+  const d = new Date(date);
+  const day = String(d.getUTCDate()).padStart(2, '0');
+  const month = String(d.getUTCMonth() + 1).padStart(2, '0');
+  const year = d.getUTCFullYear();
+  return `${day}-${month}-${year}`;
+};
+
+const formatBundleResponse = (bundle) => {
+  const data = bundle.toJSON();
+  const dimension = data.orderItem?.dimension;
+  const stackConfig = data.stackConfig;
+
+  return {
+    id: data.id,
+    dimension: dimension ? `${dimension.thickness}x${dimension.width}x${dimension.length}` : null,
+    stackConfig: stackConfig ? `${stackConfig.widthStack}x${stackConfig.heightStack}` : null,
+    totalPieces: data.totalPieces,
+    cubicMeters: data.cubicMeters,
+    producedAt: formatDateCL(data.producedAt),
+    createdAt: data.createdAt,
+    updatedAt: data.updatedAt,
+    deletedAt: data.deletedAt,
+  };
+};
+
 const checkOrderModifiable = async (orderId) => {
   const order = await Order.findByPk(orderId);
   if (!order) {
@@ -49,7 +76,7 @@ const getFullBundle = async (id) => {
   if (!bundle) {
     throw new NotFoundError('Bundle no encontrado');
   }
-  return bundle;
+  return formatBundleResponse(bundle);
 };
 
 export const getByItem = async (orderId, itemId) => {
@@ -80,7 +107,7 @@ export const getByItem = async (orderId, itemId) => {
     order: [['producedAt', 'DESC']],
   });
 
-  return bundles;
+  return bundles.map(formatBundleResponse);
 };
 
 export const getById = async (id) => {

@@ -2,6 +2,8 @@ import { Op } from 'sequelize';
 import Order from '../models/order.model.js';
 import Dimension from '../models/dimension.model.js';
 import OrderItem from '../models/order_item.model.js';
+import Bundle from '../models/bundle.model.js';
+import StackConfig from '../models/stack_config.model.js';
 import { NotFoundError, ConflictError } from '../utils/errors.js';
 
 const parseDateCL = (dateStr) => {
@@ -22,11 +24,31 @@ const formatDateCL = (date) => {
 const formatOrderResponse = (order) => {
   const data = order.toJSON();
   if (data.orderDate) data.orderDate = formatDateCL(data.orderDate);
-  if (data.dimensions) {
-    data.dimensions = data.dimensions.map((d) => ({
-      dimension: `${d.thickness}x${d.width}x${d.length}`,
-      quantity: d.OrderItem?.quantity || 0,
-    }));
+  if (data.items) {
+    data.dimensions = data.items.map((item) => {
+      const dimension = item.dimension;
+      const stackConfig = dimension?.defaultStackConfig;
+      const produced = item.bundles?.length || 0;
+      const quantity = item.quantity;
+      const pending = Math.max(0, quantity - produced);
+
+      let itemStatus = 'not_started';
+      if (produced > 0 && produced < quantity) {
+        itemStatus = 'in_progress';
+      } else if (produced >= quantity) {
+        itemStatus = 'completed';
+      }
+
+      return {
+        dimension: dimension ? `${dimension.thickness}x${dimension.width}x${dimension.length}` : null,
+        stackConfig: stackConfig ? `${stackConfig.widthStack}x${stackConfig.heightStack}` : null,
+        quantity,
+        produced,
+        pending,
+        status: itemStatus,
+      };
+    });
+    delete data.items;
   }
   return data;
 };
@@ -34,9 +56,25 @@ const formatOrderResponse = (order) => {
 export const getAll = async () => {
   const orders = await Order.findAll({
     include: [{
-      model: Dimension,
-      as: 'dimensions',
-      through: { attributes: ['quantity'] },
+      model: OrderItem,
+      as: 'items',
+      include: [
+        {
+          model: Dimension,
+          as: 'dimension',
+          attributes: ['id', 'thickness', 'width', 'length', 'defaultStackConfigId'],
+          include: [{
+            model: StackConfig,
+            as: 'defaultStackConfig',
+            attributes: ['id', 'widthStack', 'heightStack', 'separatorEvery'],
+          }],
+        },
+        {
+          model: Bundle,
+          as: 'bundles',
+          attributes: ['id'],
+        },
+      ],
     }],
     order: [['createdAt', 'DESC']],
   });
@@ -46,9 +84,25 @@ export const getAll = async () => {
 export const getById = async (id) => {
   const order = await Order.findByPk(id, {
     include: [{
-      model: Dimension,
-      as: 'dimensions',
-      through: { attributes: ['quantity'] },
+      model: OrderItem,
+      as: 'items',
+      include: [
+        {
+          model: Dimension,
+          as: 'dimension',
+          attributes: ['id', 'thickness', 'width', 'length', 'defaultStackConfigId'],
+          include: [{
+            model: StackConfig,
+            as: 'defaultStackConfig',
+            attributes: ['id', 'widthStack', 'heightStack', 'separatorEvery'],
+          }],
+        },
+        {
+          model: Bundle,
+          as: 'bundles',
+          attributes: ['id'],
+        },
+      ],
     }],
   });
   if (!order) {

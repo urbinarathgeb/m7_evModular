@@ -250,7 +250,21 @@ Para probar el entorno de producción en local:
 #### Comportamiento especial
 
 - **Status automático:** Toda orden se crea con `status: "pending"`. No se puede enviar `status` al crear.
-- **Respuesta aplanada:** Las dimensiones se devuelven como `{ "dimension": "45x70x3200", "quantity": 5 }` en vez del objeto completo.
+- **Respuesta aplanada:** Las dimensiones se devuelven con formato extendido:
+  ```json
+  {
+    "dimension": "45x70x3200",
+    "stackConfig": "15x14",
+    "quantity": 5,
+    "produced": 3,
+    "pending": 2,
+    "status": "in_progress"
+  }
+  ```
+  - `stackConfig`: configuración de apilado sugerida (default de la dimensión)
+  - `produced`: cantidad de bundles registrados para ese item
+  - `pending`: `quantity - produced`
+  - `status`: `not_started` (0 producidos), `in_progress` (parcial), `completed` (todos producidos)
 - **Rollback en error:** Si una dimensión del array no existe, se elimina la orden creada para evitar órdenes huérfanas.
 
 ### OrderItems
@@ -271,7 +285,7 @@ Las operaciones sobre items solo están permitidas cuando la orden está en esta
 #### Comportamiento especial
 
 - **Dimensión duplicada:** Si se agrega una dimensión que ya existe en la orden, se suma la cantidad al item existente en lugar de crear uno nuevo.
-- **Respuesta:** Todas las operaciones retornan la orden completa con sus items aplanados (formato `{ "dimension": "45x70x3200", "quantity": 5 }`).
+- **Respuesta:** Todas las operaciones retornan la orden completa con sus items aplanados (incluye `stackConfig`, `produced`, `pending`, `status` por item).
 - **Eliminar último item:** Permitido. La orden queda sin items pero no se auto-elimina.
 - **Soft delete:** `DELETE` no elimina físicamente, solo marca `deleted_at`. El item se puede restaurar.
 
@@ -302,6 +316,42 @@ Al registrar un bundle, el sistema calcula automáticamente:
 - **Restricción de estado:** Solo se pueden registrar bundles si la orden está en `pending` o `in_production`. Si está en `completed` o `delivered`, se retorna `409 ConflictError`.
 - **PATCH:** Solo permite cambiar `stackConfigId`. Al actualizar, se recalculan automáticamente `totalPieces` y `cubicMeters` con la nueva configuración.
 - **Soft delete:** `DELETE` no elimina físicamente, solo marca `deleted_at`. El bundle se puede restaurar.
+- **Respuesta aplanada:** El bundle se devuelve con formato simplificado:
+  ```json
+  {
+    "dimension": "45x70x3200",
+    "stackConfig": "15x14",
+    "totalPieces": 210,
+    "cubicMeters": 0.0470,
+    "producedAt": "29-05-2026"
+  }
+  ```
+
+### Stock
+
+| Método | Ruta | Descripción |
+|---|---|---|
+| `GET` | `/api/stock` | Vista de stock global (todas las órdenes agrupadas por dimensión) |
+
+> Para pruebas completas, ver `src/request/stock.http`.
+
+#### Respuesta
+
+Cada entrada del stock agrupa todos los pedidos de una misma dimensión:
+
+```json
+{
+  "dimension": "45x70x3200",
+  "stackConfig": "15x14",
+  "totalOrdered": 15,
+  "totalProduced": 10,
+  "totalPending": 5,
+  "orders": [
+    { "orderId": 1, "client": "Cliente A", "status": "pending", "quantity": 5, "produced": 3 },
+    { "orderId": 2, "client": "Cliente B", "status": "in_production", "quantity": 10, "produced": 7 }
+  ]
+}
+```
 
 ## Stack
 
