@@ -112,11 +112,12 @@ const testFlow = async () => {
   const updatedOrder = addItemRes.data;
   const dim1Item = updatedOrder.dimensions.find((d) => d.dimension === state.dim1Str);
   assert(dim1Item.quantity === 15, `Dimensión 1: quantity sumó 5+10 = ${dim1Item.quantity}`);
-  log.info(`Dimensión ${state.dim1Str}: ahora ${dim1Item.quantity} paquetes`);
+  state.item1Id = dim1Item.itemId;
+  log.info(`Dimensión ${state.dim1Str}: itemId=${state.item1Id}, ahora ${dim1Item.quantity} paquetes`);
 
   // 6. Register bundles
   log.section('6. Registrar Bundles');
-  const bundle1 = await post(`/api/orders/${state.order.id}/items/1/bundles`);
+  const bundle1 = await post(`/api/orders/${state.order.id}/items/${state.item1Id}/bundles`);
   assert(bundle1.status === 201, `POST bundle 1 → ${bundle1.status}`);
   assert(bundle1.data.dimension, 'Bundle tiene dimension aplanada');
   assert(bundle1.data.stackConfig, 'Bundle tiene stackConfig aplanado');
@@ -124,7 +125,7 @@ const testFlow = async () => {
   assert(bundle1.data.cubicMeters > 0, `Bundle tiene cubicMeters = ${bundle1.data.cubicMeters}`);
   log.info(`Bundle 1: ${bundle1.data.dimension} con ${bundle1.data.stackConfig} → ${bundle1.data.totalPieces} piezas`);
 
-  const bundle2 = await post(`/api/orders/${state.order.id}/items/1/bundles`);
+  const bundle2 = await post(`/api/orders/${state.order.id}/items/${state.item1Id}/bundles`);
   assert(bundle2.status === 201, `POST bundle 2 → ${bundle2.status}`);
   log.info(`Bundle 2 registrado`);
 
