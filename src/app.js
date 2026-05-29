@@ -7,6 +7,7 @@ import {NotFoundError} from './utils/errors.js';
 import './models/index.js';
 import {seed} from './seeders/initial.seed.js';
 import dimensionRoutes from './routes/dimension.routes.js';
+import stackConfigRoutes from './routes/stack_config.routes.js';
 import orderRoutes from './routes/order.routes.js';
 
 const app = express();
@@ -25,6 +26,7 @@ app.get('/', (_req, res) => {
 });
 
 app.use('/api/dimensions', dimensionRoutes);
+app.use('/api/stack-configs', stackConfigRoutes);
 app.use('/api/orders', orderRoutes);
 
 /** @type {import('express').RequestHandler} */

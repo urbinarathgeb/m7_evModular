@@ -2,6 +2,7 @@ import { Op } from 'sequelize';
 import sequelize from '../config/db.config.js';
 import Dimension from '../models/dimension.model.js';
 import StackConfig from '../models/stack_config.model.js';
+import { findOrCreate as findOrCreateStackConfig } from './stack_config.service.js';
 import { NotFoundError, ConflictError } from '../utils/errors.js';
 
 export const getAll = async () => {
@@ -44,17 +45,17 @@ export const create = async (data) => {
 
   try {
     return await sequelize.transaction(async (t) => {
-      const newStackConfig = await StackConfig.create({
+      const stackConfig = await findOrCreateStackConfig({
         widthStack: stackConfig.widthStack,
         heightStack: stackConfig.heightStack,
-        separatorEvery: stackConfig.separatorEvery ?? (stackConfig.heightStack <= 10 ? stackConfig.heightStack : Math.ceil(stackConfig.heightStack / 5)),
-      }, { transaction: t });
+        separatorEvery: stackConfig.separatorEvery,
+      }, t);
 
       const dimension = await Dimension.create({
         thickness,
         width,
         length,
-        defaultStackConfigId: newStackConfig.id,
+        defaultStackConfigId: stackConfig.id,
       }, { transaction: t });
 
       return Dimension.findByPk(dimension.id, {

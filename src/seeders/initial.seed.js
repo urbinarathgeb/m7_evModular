@@ -1,5 +1,6 @@
 import Dimension from '../models/dimension.model.js';
-import StackConfig from '../models/stack_config.model.js';
+import sequelize from '../config/db.config.js';
+import { findOrCreate as findOrCreateStackConfig } from '../services/stack_config.service.js';
 
 const seedData = [
   { thickness: 45, width: 70, length: 3200, widthStack: 15, heightStack: 14 },
@@ -51,17 +52,19 @@ export const seed = async () => {
       continue;
     }
 
-    const stackConfig = await StackConfig.create({
-      widthStack: row.widthStack,
-      heightStack: row.heightStack,
-      separatorEvery: calculateSeparatorEvery(row.heightStack),
-    });
+    await sequelize.transaction(async (t) => {
+      const stackConfig = await findOrCreateStackConfig({
+        widthStack: row.widthStack,
+        heightStack: row.heightStack,
+        separatorEvery: calculateSeparatorEvery(row.heightStack),
+      }, t);
 
-    await Dimension.create({
-      thickness: row.thickness,
-      width: row.width,
-      length: row.length,
-      defaultStackConfigId: stackConfig.id,
+      await Dimension.create({
+        thickness: row.thickness,
+        width: row.width,
+        length: row.length,
+        defaultStackConfigId: stackConfig.id,
+      }, { transaction: t });
     });
   }
 

@@ -32,6 +32,12 @@ StackConfig.init({
   timestamps: true,
   underscored: true,
   paranoid: true,
+  indexes: [
+    {
+      unique: true,
+      fields: ['width_stack', 'height_stack', 'separator_every'],
+    },
+  ],
 });
 
 export default StackConfig;

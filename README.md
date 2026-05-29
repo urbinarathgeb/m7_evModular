@@ -204,6 +204,29 @@ Para probar el entorno de producción en local:
 - **Restore al crear duplicada:** Si se intenta crear una dimensión con las mismas medidas que una soft-deleted, el sistema la restaura automáticamente en vez de crear un nuevo registro.
 - **Índice único:** No permite crear dos dimensiones activas con las mismas medidas (`thickness`, `width`, `length`).
 - **StackConfig obligatorio:** Toda dimensión se crea con su configuración de apilado default. No existe una dimensión sin configuración sugerida.
+- **Reutilización de StackConfig:** Al crear una dimensión, si ya existe un StackConfig con los mismos valores (activo o soft-deleted), se reutiliza/restaura en lugar de crear uno duplicado.
+
+### StackConfigs
+
+| Método | Ruta | Descripción | Validación |
+|---|---|---|---|
+| `GET` | `/api/stack-configs` | Listar todas las configuraciones de apilado | — |
+| `GET` | `/api/stack-configs/:id` | Obtener configuración por ID (con dimensiones que la usan como default) | ID entero positivo |
+| `POST` | `/api/stack-configs` | Crear nueva configuración de apilado | `widthStack`, `heightStack` obligatorios, `separatorEvery` opcional |
+| `PUT` | `/api/stack-configs/:id` | Actualizar configuración (completa) | `widthStack`, `heightStack` obligatorios, `separatorEvery` opcional |
+| `PATCH` | `/api/stack-configs/:id` | Actualizar configuración (parcial) | Al menos un campo, enteros > 0 |
+| `POST` | `/api/stack-configs/:id/restore` | Restaurar configuración eliminada | ID entero positivo |
+| `DELETE` | `/api/stack-configs/:id` | Eliminar configuración (soft delete) | ID entero positivo |
+
+> Para pruebas completas, ver `src/request/stack_configs.http` (35 casos de prueba).
+
+#### Comportamiento especial
+
+- **Soft delete:** `DELETE` no elimina físicamente, solo marca `deleted_at`. La configuración desaparece de las consultas pero se puede restaurar.
+- **Restore al crear duplicada:** Si se intenta crear una configuración con los mismos valores que una soft-deleted, el sistema la restaura automáticamente en vez de crear un nuevo registro.
+- **Índice único:** No permite crear dos configuraciones activas con los mismos valores (`widthStack`, `heightStack`, `separatorEvery`).
+- **Eliminación bloqueada:** Si una configuración es `defaultStackConfigId` de una o más dimensiones activas, no se puede eliminar. Retorna `409 ConflictError`.
+- **separatorEvery automático:** Si no se proporciona, se calcula automáticamente: si `heightStack <= 10` → `heightStack`, sino → `Math.ceil(heightStack / 5)`.
 
 ### Orders
 
