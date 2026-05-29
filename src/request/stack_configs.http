@@ -220,14 +220,16 @@ Content-Type: application/json
 }
 
 ### ============================================
-### DELETE - Eliminar configuración (soft delete)
+### DELETE - Eliminar configuración usada como default (error)
 ### ============================================
+### No se puede eliminar porque es el defaultStackConfigId de una o más dimensiones activas
 DELETE {{base_url}}/stack-configs/1
 
 ### ============================================
-### DELETE - Eliminar configuración ya borrada
+### DELETE - Eliminar configuración usada como default (error)
 ### ============================================
-DELETE {{base_url}}/stack-configs/1
+### Otra dimensión con diferente StackConfig default
+DELETE {{base_url}}/stack-configs/2
 
 ### ============================================
 ### DELETE - Eliminar configuración (ID no existe)
@@ -240,19 +242,39 @@ DELETE {{base_url}}/stack-configs/999
 DELETE {{base_url}}/stack-configs/abc
 
 ### ============================================
-### DELETE - Eliminar configuración usada como default (error)
+### POST - Crear configuración libre (sin dimensión asociada)
 ### ============================================
-DELETE {{base_url}}/stack-configs/2
+### Anotar el ID de la respuesta para los tests de DELETE/restore siguientes
+POST {{base_url}}/stack-configs
+Content-Type: application/json
+
+{
+  "widthStack": 99,
+  "heightStack": 99,
+  "separatorEvery": 10
+}
+
+### ============================================
+### DELETE - Eliminar configuración (soft delete exitoso)
+### ============================================
+### Reemplazar el ID con el del POST anterior (configuración libre)
+DELETE {{base_url}}/stack-configs/17
+
+### ============================================
+### DELETE - Eliminar configuración ya borrada (error)
+### ============================================
+DELETE {{base_url}}/stack-configs/17
 
 ### ============================================
 ### POST - Restaurar configuración eliminada (explícito)
 ### ============================================
-POST {{base_url}}/stack-configs/1/restore
+POST {{base_url}}/stack-configs/17/restore
 
 ### ============================================
 ### POST - Restaurar configuración no eliminada (error)
 ### ============================================
-POST {{base_url}}/stack-configs/2/restore
+### Esta configuración nunca fue eliminada, el restore debe fallar
+POST {{base_url}}/stack-configs/3/restore
 
 ### ============================================
 ### POST - Restaurar configuración que no existe
@@ -267,20 +289,20 @@ POST {{base_url}}/stack-configs
 Content-Type: application/json
 
 {
-  "widthStack": 99,
-  "heightStack": 99,
-  "separatorEvery": 10
+  "widthStack": 88,
+  "heightStack": 88,
+  "separatorEvery": 9
 }
 
 ### Paso 2: Eliminarla (reemplazar el ID con el de la respuesta anterior)
-DELETE {{base_url}}/stack-configs/20
+DELETE {{base_url}}/stack-configs/18
 
 ### Paso 3: Intentar crear la misma configuración (debería restaurar la eliminada)
 POST {{base_url}}/stack-configs
 Content-Type: application/json
 
 {
-  "widthStack": 99,
-  "heightStack": 99,
-  "separatorEvery": 10
+  "widthStack": 88,
+  "heightStack": 88,
+  "separatorEvery": 9
 }
