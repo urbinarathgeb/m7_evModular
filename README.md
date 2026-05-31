@@ -131,12 +131,21 @@ Todos los modelos usan **soft delete** (`paranoid: true` en Sequelize). Esto sig
    CREATE DATABASE "cutlogDB";
    ```
 
-4. Configurar el archivo `.env` (copiar `.env.example` si existe):
-   ```bash
-   cp .env.example .env
+4. Crear el archivo `.env` en la raíz del proyecto:
+
+   ```ini
+   PG_HOST=localhost
+   PG_PORT=5432
+   PG_USER=postgres
+   PG_PASSWORD=
+   PG_DATABASE=cutlogDB
+   ALLOW_EXIT_ON_IDLE=true
    ```
 
-5. Ajustar las variables de entorno según tu configuración local.
+5. Ajustar `PG_USER` y `PG_PASSWORD` según tu configuración local de PostgreSQL.
+
+6. (Opcional) Para entornos específicos, crear `.env.development` o
+   `.env.production` con las variables que cambian (ver [Entornos](#entornos)).
 
 ### Ejecución
 
