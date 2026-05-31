@@ -24,7 +24,7 @@ Para permitir órdenes mixtas (múltiples medidas en un mismo pedido), la base d
 
 | **Entidad**       | **Propósito**                                                        |
 |-------------------|----------------------------------------------------------------------|
-| **Escuadría**     | Catálogo base de medidas físicas (ej: 18x90x3000).                   |
+| **Dimensiones**   | Catálogo base de medidas físicas (ej: 18x90x3000).                   |
 | **Configuración** | Receta técnica reutilizable: Ancho, Alto, filas entre separadores.   |
 | **Orden**         | Contenedor maestro: Vincula cliente, fecha y estado global.          |
 | **DetalleOrden**  | "Items" de la orden: Define cuánto producir de cada escuadría.       |
