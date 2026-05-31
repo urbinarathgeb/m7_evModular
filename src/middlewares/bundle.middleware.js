@@ -26,7 +26,7 @@ export const validateBundleId = (req, _res, next) => {
 
 export const validateCreateBundle = (req, _res, next) => {
   const errors = [];
-  const { stackConfigId } = req.body;
+  const { stackConfigId } = req.body || {};
 
   if (stackConfigId !== undefined) {
     if (!Number.isInteger(stackConfigId) || stackConfigId < 1) {
@@ -43,9 +43,10 @@ export const validateCreateBundle = (req, _res, next) => {
 
 export const validateUpdateBundle = (req, _res, next) => {
   const errors = [];
-  const { stackConfigId } = req.body;
+  const { stackConfigId } = req.body || {};
 
-  if (Object.keys(req.body).length === 0) {
+  const body = req.body || {};
+  if (Object.keys(body).length === 0) {
     throw new ValidationError('Se requiere al menos un campo para actualizar');
   }
 

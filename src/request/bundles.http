@@ -11,6 +11,9 @@
 ### POST - Registrar bundle (usa stackConfig default de la dimensión)
 ### ============================================
 POST {{base_url}}/orders/{{order_id}}/items/{{item_id}}/bundles
+Content-Type: application/json
+
+{}
 
 ### ============================================
 ### POST - Registrar bundle (con stackConfigId específico)
